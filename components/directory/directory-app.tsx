@@ -36,6 +36,16 @@ import {
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 
+const areaItems = [
+  { label: "Todas las áreas", value: "all" },
+  ...AREAS.map((value) => ({ label: value, value })),
+]
+
+const generationItems = [
+  { label: "Todas", value: "all" },
+  ...GENERATIONS.map((value) => ({ label: `Gen. ${value}`, value })),
+]
+
 type Profile = Doc<"profiles">
 
 function ProfileDetail({ profile }: { profile: Profile }) {
@@ -68,10 +78,6 @@ function ProfileDetail({ profile }: { profile: Profile }) {
 
       <div className="flex flex-col gap-2">
         <h3 className="text-sm font-medium">Contacto</h3>
-        <p className="text-xs text-muted-foreground">
-          Visible solo para miembros de la red. Puedes editar tu propio perfil
-          en cualquier momento.
-        </p>
         <div className="mt-2 flex flex-col gap-2">
           <Button
             variant="outline"
@@ -246,22 +252,26 @@ export function DirectoryApp() {
               aria-label="Buscar por nombre"
             />
           </div>
-          <Select value={area} onValueChange={(v) => setArea(v ?? "all")}>
+          <Select
+            items={areaItems}
+            value={area}
+            onValueChange={(v) => setArea(v ?? "all")}
+          >
             <SelectTrigger className="w-full sm:w-44" aria-label="Área">
               <SelectValue placeholder="Área" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all">Todas las áreas</SelectItem>
-                {AREAS.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item}
+                {areaItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
                   </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
           <Select
+            items={generationItems}
             value={generation}
             onValueChange={(v) => setGeneration(v ?? "all")}
           >
@@ -270,10 +280,9 @@ export function DirectoryApp() {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all">Todas</SelectItem>
-                {GENERATIONS.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    Gen. {item}
+                {generationItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
                   </SelectItem>
                 ))}
               </SelectGroup>

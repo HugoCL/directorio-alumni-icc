@@ -35,15 +35,15 @@ const directoryPreview = [
 const steps = [
   {
     title: "Verifica tu cuenta",
-    body: "Usa tu correo institucional o solicita revisión como exalumno.",
+    body: "Usa tu correo institucional o solicita acceso si eres alumni.",
   },
   {
-    title: "Completa tu perfil",
-    body: "Cuenta tu experiencia y en qué puedes orientar.",
+    title: "Cuéntanos sobre ti",
+    body: "Agrega tu experiencia, intereses y formas de contacto.",
   },
   {
-    title: "Conecta con contexto",
-    body: "La red sabe cuándo y cómo contactarte.",
+    title: "Explora la red",
+    body: "Encuentra personas de la comunidad y ponte en contacto.",
   },
 ]
 
@@ -62,15 +62,15 @@ export default function HomePage() {
           <div className="relative mx-auto grid min-h-[calc(92svh-3.5rem)] w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
             <div className="max-w-2xl">
               <h1 className="reveal-up font-editorial text-[clamp(3.5rem,6.5vw,6.75rem)] leading-[0.88] tracking-[-0.04em] text-foreground">
-                Encuentra a alguien que ya recorrió el camino.
+                Conecta con la comunidad ICC.
               </h1>
               <div
                 aria-hidden
                 className="reveal-up reveal-up-delay-1 mt-7 h-1 w-16 bg-signal"
               />
               <p className="reveal-up reveal-up-delay-2 mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-                Explora la experiencia de alumni ICC y conecta con quienes
-                pueden orientarte en tu siguiente decisión.
+                Conoce a estudiantes y alumni, descubre sus experiencias y
+                conversa con personas de distintas áreas.
               </p>
               <div className="reveal-up reveal-up-delay-3 mt-9 flex flex-wrap items-center gap-4">
                 <Button
@@ -79,7 +79,7 @@ export default function HomePage() {
                   nativeButton={false}
                 >
                   <SearchIcon data-icon="inline-start" />
-                  Explorar el directorio
+                  Ver el directorio
                 </Button>
                 <Button
                   size="lg"
@@ -101,7 +101,7 @@ export default function HomePage() {
                       Directorio privado
                     </p>
                     <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-                      Personas que pueden orientarte
+                      Perfiles de la comunidad
                     </h2>
                   </div>
                   <SearchIcon className="size-5 text-muted-foreground" />
@@ -155,11 +155,11 @@ export default function HomePage() {
               className="paper-grid absolute top-0 left-0 h-40 w-48 [mask-image:linear-gradient(to_bottom_right,black,transparent)] opacity-50"
             />
             <h2 className="font-editorial mx-auto max-w-4xl text-5xl leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-7xl">
-              Una red para pedir contexto, no favores.
+              Una comunidad para compartir experiencias.
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Cada perfil deja claro qué experiencia tiene una persona, en qué
-              puede ayudarte y cómo prefiere que la contacten.
+              Conoce a estudiantes y alumni, descubre en qué trabajan y
+              encuentra personas con intereses similares.
             </p>
           </div>
 
@@ -167,14 +167,14 @@ export default function HomePage() {
             <article className="bg-accent/60 px-6 py-14 sm:px-10 sm:py-20 lg:px-[max(2.5rem,calc((100vw-80rem)/2))] lg:pr-16">
               <div className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-primary uppercase">
                 <GraduationCapIcon className="size-5" />
-                <span>Si eres estudiante</span>
+                <span>Para estudiantes</span>
               </div>
               <h3 className="font-editorial mt-10 max-w-xl text-4xl leading-none tracking-[-0.025em] sm:text-6xl">
-                Llega a la conversación correcta.
+                Conoce a quienes egresaron de ICC.
               </h3>
               <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Busca por área, generación o experiencia. Escribe con una
-                pregunta concreta y el contexto de tu decisión.
+                Explora perfiles por área, generación o experiencia y conversa
+                con alumni sobre su trabajo y trayectoria.
               </p>
               <Button
                 className="mt-8"
@@ -182,7 +182,7 @@ export default function HomePage() {
                 render={<Link href="/directorio" />}
                 nativeButton={false}
               >
-                Buscar alumni
+                Explorar perfiles
                 <ArrowRightIcon data-icon="inline-end" />
               </Button>
             </article>
@@ -190,14 +190,14 @@ export default function HomePage() {
             <article className="border-t border-border px-6 py-14 sm:px-10 sm:py-20 lg:border-t-0 lg:border-l lg:px-[max(2.5rem,calc((100vw-80rem)/2))] lg:pl-16">
               <div className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-primary uppercase">
                 <UserRoundIcon className="size-5" />
-                <span>Si eres alumni</span>
+                <span>Para alumni</span>
               </div>
               <h3 className="font-editorial mt-10 max-w-xl text-4xl leading-none tracking-[-0.025em] sm:text-6xl">
-                Comparte hasta donde quieras.
+                Sigue en contacto con la comunidad.
               </h3>
               <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Publica los temas en los que puedes orientar y elige qué datos
-                de contacto mantener visibles.
+                Comparte tu experiencia, los temas sobre los que te gustaría
+                conversar y cómo prefieres que te contacten.
               </p>
               <Button
                 className="mt-8"
@@ -223,7 +223,7 @@ export default function HomePage() {
             </p>
             <div aria-hidden className="mt-4 h-0.5 w-10 bg-signal" />
             <h2 className="font-editorial mt-6 text-5xl leading-none tracking-[-0.035em] sm:text-7xl">
-              Tres pasos. Sin ruido.
+              Empieza en tres pasos.
             </h2>
 
             <ol className="mt-16 grid gap-10 lg:grid-cols-3 lg:gap-0">
@@ -251,11 +251,11 @@ export default function HomePage() {
           <div className="bg-primary text-primary-foreground">
             <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.4fr_0.8fr_auto] lg:items-center">
               <h2 className="font-editorial max-w-2xl text-4xl leading-[1.05] tracking-[-0.025em] sm:text-5xl">
-                Tu experiencia puede destrabar la siguiente decisión de alguien.
+                Súmate a la comunidad ICC.
               </h2>
               <p className="max-w-md text-sm leading-relaxed text-primary-foreground/75 sm:text-base">
-                Verifica tu correo institucional o solicita revisión para
-                activar tu perfil de exalumno.
+                Inicia sesión con tu correo institucional o solicita acceso si
+                eres alumni.
               </p>
               <Button
                 size="lg"
@@ -263,7 +263,7 @@ export default function HomePage() {
                 render={<Link href="/sign-in" />}
                 nativeButton={false}
               >
-                Entrar a la red
+                Iniciar sesión
                 <ArrowRightIcon data-icon="inline-end" />
               </Button>
             </div>
