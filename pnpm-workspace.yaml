@@ -1,0 +1,10 @@
+packages: []
+
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+  msw: false
+  esbuild: true
+  bufferutil: true
+  core-js: true
+  utf-8-validate: true

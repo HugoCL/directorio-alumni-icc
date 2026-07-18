@@ -1,0 +1,280 @@
+import { v } from "convex/values"
+import { internal } from "./_generated/api"
+import { action, internalMutation, mutation, query } from "./_generated/server"
+import { getIdentity, normalizeEmail, requireAdmin } from "./lib/auth"
+import {
+  verificationRequestValidator,
+  verificationStatusValidator,
+} from "./lib/validators"
+import { isValidGeneration, isVerifiedStudentEmail } from "./lib/verification"
+
+function normalizeLinkedIn(value: string): string {
+  try {
+    const url = new URL(
+      value.trim().startsWith("http") ? value.trim() : `https://${value.trim()}`
+    )
+    if (
+      url.hostname !== "linkedin.com" &&
+      !url.hostname.endsWith(".linkedin.com") &&
+      url.hostname !== "lnkd.in"
+    ) {
+      throw new Error()
+    }
+    return url.toString()
+  } catch {
+    throw new Error("URL de LinkedIn inválida")
+  }
+}
+
+export const mine = query({
+  args: {},
+  returns: v.union(verificationRequestValidator, v.null()),
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return null
+    return await ctx.db
+      .query("verificationRequests")
+      .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
+      .unique()
+  },
+})
+
+export const list = query({
+  args: {},
+  returns: v.array(verificationRequestValidator),
+  handler: async (ctx) => {
+    await requireAdmin(ctx)
+    return await ctx.db.query("verificationRequests").order("desc").take(100)
+  },
+})
+
+export const submit = mutation({
+  args: {
+    name: v.string(),
+    generation: v.string(),
+    linkedinUrl: v.string(),
+  },
+  returns: v.id("verificationRequests"),
+  handler: async (ctx, args) => {
+    const identity = await getIdentity(ctx)
+    const email = identity.email ? normalizeEmail(identity.email) : null
+    if (!email || identity.emailVerified !== true) {
+      throw new Error("Verifica tu correo en Clerk antes de continuar")
+    }
+    if (isVerifiedStudentEmail(email, identity.emailVerified)) {
+      throw new Error("Tu correo institucional se verifica automáticamente")
+    }
+
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
+      .unique()
+    if (existingUser?.role === "alumni" || existingUser?.role === "admin") {
+      throw new Error("Tu cuenta ya está verificada")
+    }
+
+    const name = args.name.trim()
+    if (name.length < 2) throw new Error("Ingresa tu nombre completo")
+    if (!isValidGeneration(args.generation)) {
+      throw new Error("Generación inválida")
+    }
+    const linkedinUrl = normalizeLinkedIn(args.linkedinUrl)
+    const previous = await ctx.db
+      .query("verificationRequests")
+      .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
+      .unique()
+
+    if (previous?.status === "pending") {
+      throw new Error("Ya tienes una solicitud pendiente")
+    }
+    if (previous?.status === "approved") {
+      throw new Error("Tu solicitud ya fue aprobada")
+    }
+    if (previous?.status === "rejected" && !previous.notifiedAt) {
+      throw new Error("El resultado aún está pendiente de notificación")
+    }
+
+    const payload = {
+      clerkUserId: identity.subject,
+      tokenIdentifier: identity.tokenIdentifier,
+      email,
+      name,
+      generation: args.generation,
+      linkedinUrl,
+      status: "pending" as const,
+      reviewedByUserId: undefined,
+      reviewedAt: undefined,
+      rejectionReason: undefined,
+      notifiedAt: undefined,
+      updatedAt: Date.now(),
+    }
+
+    if (previous) {
+      await ctx.db.patch(previous._id, payload)
+      return previous._id
+    }
+    return await ctx.db.insert("verificationRequests", payload)
+  },
+})
+
+export const applyReview = internalMutation({
+  args: {
+    requestId: v.id("verificationRequests"),
+    decision: v.union(v.literal("approved"), v.literal("rejected")),
+    rejectionReason: v.optional(v.string()),
+    reviewerClerkUserId: v.string(),
+    expectedUpdatedAt: v.number(),
+  },
+  returns: v.object({
+    email: v.string(),
+    name: v.string(),
+    status: verificationStatusValidator,
+    rejectionReason: v.optional(v.string()),
+  }),
+  handler: async (ctx, args) => {
+    const admin = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_user", (q) =>
+        q.eq("clerkUserId", args.reviewerClerkUserId)
+      )
+      .unique()
+    if (!admin || admin.role !== "admin") {
+      throw new Error("Se requiere acceso de administrador")
+    }
+
+    const request = await ctx.db.get(args.requestId)
+    if (!request) throw new Error("Solicitud no encontrada")
+    if (request.updatedAt !== args.expectedUpdatedAt) {
+      throw new Error("La solicitud cambió; recarga antes de continuar")
+    }
+    if (request.notifiedAt) throw new Error("La decisión ya fue notificada")
+    if (request.status !== "pending" && request.status !== args.decision) {
+      throw new Error("La solicitud ya fue revisada")
+    }
+
+    const rejectionReason = args.rejectionReason?.trim()
+    if (args.decision === "rejected" && !rejectionReason) {
+      throw new Error("Indica el motivo del rechazo")
+    }
+
+    if (args.decision === "approved") {
+      const existing = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_user", (q) =>
+          q.eq("clerkUserId", request.clerkUserId)
+        )
+        .unique()
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          tokenIdentifier: request.tokenIdentifier,
+          email: request.email,
+          name: request.name,
+          role: existing.role === "admin" ? "admin" : "alumni",
+          updatedAt: Date.now(),
+        })
+      } else {
+        await ctx.db.insert("users", {
+          tokenIdentifier: request.tokenIdentifier,
+          clerkUserId: request.clerkUserId,
+          email: request.email,
+          name: request.name,
+          role: "alumni",
+          profileComplete: false,
+          updatedAt: Date.now(),
+        })
+      }
+    }
+
+    await ctx.db.patch(request._id, {
+      status: args.decision,
+      reviewedByUserId: admin._id,
+      reviewedAt: Date.now(),
+      rejectionReason:
+        args.decision === "rejected" ? rejectionReason : undefined,
+      updatedAt: Date.now(),
+    })
+
+    return {
+      email: request.email,
+      name: request.name,
+      status: args.decision,
+      rejectionReason:
+        args.decision === "rejected" ? rejectionReason : undefined,
+    }
+  },
+})
+
+export const markNotified = internalMutation({
+  args: {
+    requestId: v.id("verificationRequests"),
+    status: v.union(v.literal("approved"), v.literal("rejected")),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const request = await ctx.db.get(args.requestId)
+    if (!request || request.status !== args.status) {
+      throw new Error("La solicitud cambió antes de registrar el correo")
+    }
+    await ctx.db.patch(args.requestId, {
+      notifiedAt: Date.now(),
+      updatedAt: Date.now(),
+    })
+    return null
+  },
+})
+
+export const review = action({
+  args: {
+    requestId: v.id("verificationRequests"),
+    decision: v.union(v.literal("approved"), v.literal("rejected")),
+    rejectionReason: v.optional(v.string()),
+    expectedUpdatedAt: v.number(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity || identity.role !== "admin") {
+      throw new Error("Se requiere acceso de administrador")
+    }
+
+    const result = await ctx.runMutation(internal.verifications.applyReview, {
+      ...args,
+      reviewerClerkUserId: identity.subject,
+    })
+    const apiKey = process.env.RESEND_API_KEY
+    const from = process.env.RESEND_FROM
+    const appUrl = process.env.APP_URL?.replace(/\/$/, "")
+    if (!apiKey || !from || !appUrl) {
+      throw new Error("Falta configurar RESEND_API_KEY, RESEND_FROM o APP_URL")
+    }
+
+    const approved = result.status === "approved"
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": `${args.requestId}-${args.decision}`,
+      },
+      body: JSON.stringify({
+        from,
+        to: result.email,
+        subject: approved
+          ? "Tu cuenta en Red Alumni ICC fue verificada"
+          : "Resultado de tu solicitud a Red Alumni ICC",
+        text: approved
+          ? `Hola ${result.name},\n\nTu cuenta fue aprobada. Completa tu perfil en ${appUrl}/perfil`
+          : `Hola ${result.name},\n\nTu solicitud fue rechazada. Motivo: ${result.rejectionReason}\n\nPuedes corregirla y reenviarla en ${appUrl}/verificacion`,
+      }),
+    })
+    if (!response.ok) {
+      throw new Error(`Resend rechazó el correo (${response.status})`)
+    }
+
+    await ctx.runMutation(internal.verifications.markNotified, {
+      requestId: args.requestId,
+      status: args.decision,
+    })
+    return null
+  },
+})
