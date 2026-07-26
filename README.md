@@ -11,6 +11,8 @@ npx convex dev
 pnpm dev
 ```
 
+La app local debe abrirse en `http://localhost:3000`.
+
 Deployment de desarrollo Convex: `precious-kookabura-879` (proyecto `hugo-castro/directorio-alumni-icc`).
 
 ## Configurar Clerk
@@ -46,6 +48,17 @@ npx convex env set CLERK_JWT_ISSUER_DOMAIN https://<instancia>.clerk.accounts.de
 ```json
 { "role": "admin" }
 ```
+
+## Configurar fotos con Vercel Blob
+
+El proyecto `hugocastro-dev/directorio-alumni-icc` usa el store público
+`directorio-alumni-images` en `gru1`. Vercel inyecta las credenciales al
+proyecto; para desarrollo local, agrega `BLOB_READ_WRITE_TOKEN` a tu archivo de
+variables.
+
+Las fotos aceptan JPG, PNG o WebP de hasta 4 MB. Sus URLs son públicas y no
+adivinables; aparecer en la portada requiere un consentimiento separado dentro
+de `/perfil`.
 
 ## Configurar correos
 

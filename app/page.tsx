@@ -1,15 +1,12 @@
 import Image from "next/image"
 import Link from "next/link"
-import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  GraduationCapIcon,
-  SearchIcon,
-  UserRoundIcon,
-} from "lucide-react"
+import { fetchQuery } from "convex/nextjs"
+import { ArrowRightIcon } from "lucide-react"
+import { AlumniSpotlight } from "@/components/landing/alumni-spotlight"
 import { SiteHeader } from "@/components/site-header"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { buttonVariants } from "@/components/ui/button"
+import { api } from "@/convex/_generated/api"
+import { cn } from "@/lib/utils"
 
 const directoryPreview = [
   {
@@ -35,212 +32,250 @@ const directoryPreview = [
 const steps = [
   {
     title: "Verifica tu cuenta",
-    body: "Usa tu correo institucional o solicita acceso si eres alumni.",
+    body: "Entra con tu correo institucional o solicita acceso como alumni.",
   },
   {
-    title: "Cuéntanos sobre ti",
-    body: "Agrega tu experiencia, intereses y formas de contacto.",
+    title: "Completa tu perfil",
+    body: "Cuenta en qué trabajas y en qué temas puedes orientar a la red.",
   },
   {
-    title: "Explora la red",
-    body: "Encuentra personas de la comunidad y ponte en contacto.",
+    title: "Conecta y participa",
+    body: "Encuentra personas, comparte oportunidades y abre conversaciones.",
   },
 ]
 
-export default function HomePage() {
+function NetworkPreview() {
   return (
-    <div className="min-h-svh overflow-hidden">
+    <div className="border-y border-foreground">
+      <div className="flex items-end justify-between gap-4 border-b border-border py-4">
+        <div>
+          <p className="text-sm font-semibold text-primary">
+            La red por dentro
+          </p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em]">
+            Dos lugares para empezar
+          </h2>
+        </div>
+        <span className="text-sm text-muted-foreground">Acceso privado</span>
+      </div>
+
+      <Link
+        href="/directorio"
+        className="group grid gap-4 border-b border-border py-6 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 sm:grid-cols-[1fr_auto] sm:items-end"
+      >
+        <div>
+          <p className="text-xl font-semibold">Personas</p>
+          <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Busca por área, generación o experiencia y encuentra a quién
+            preguntarle.
+          </p>
+        </div>
+        <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
+      </Link>
+
+      <Link
+        href="/oportunidades"
+        className="group grid gap-4 py-6 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 sm:grid-cols-[1fr_auto] sm:items-end"
+      >
+        <div>
+          <p className="text-xl font-semibold">Oportunidades</p>
+          <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Revisa empleos y prácticas compartidos directamente por alumni ICC.
+          </p>
+        </div>
+        <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
+      </Link>
+    </div>
+  )
+}
+
+export default async function HomePage() {
+  const featuredAlumni = await fetchQuery(
+    api.profiles.listLandingFeatured,
+    {}
+  ).catch(() => [])
+
+  return (
+    <div className="min-h-svh">
       <SiteHeader variant="landing" />
 
-      <main>
-        <section className="relative border-b border-border pt-14">
-          <div
-            aria-hidden
-            className="paper-grid absolute top-20 right-0 h-[70%] w-[38%] [mask-image:linear-gradient(to_left,black,transparent)] opacity-60 max-md:hidden"
-          />
-
-          <div className="relative mx-auto grid min-h-[calc(92svh-3.5rem)] w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
+      <main id="main-content">
+        <section className="border-b border-border">
+          <div className="mx-auto grid min-h-[calc(88svh-4.5rem)] max-w-7xl items-center gap-14 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,0.92fr)_minmax(26rem,0.78fr)] lg:gap-20">
             <div className="max-w-2xl">
-              <h1 className="reveal-up font-editorial text-[clamp(3.5rem,6.5vw,6.75rem)] leading-[0.88] tracking-[-0.04em] text-foreground">
-                Conecta con la comunidad ICC.
+              <h1 className="text-[clamp(3rem,7vw,5.8rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance">
+                La red ICC,
+                <br />
+                en movimiento.
               </h1>
-              <div
-                aria-hidden
-                className="reveal-up reveal-up-delay-1 mt-7 h-1 w-16 bg-signal"
-              />
-              <p className="reveal-up reveal-up-delay-2 mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-                Conoce a estudiantes y alumni, descubre sus experiencias y
-                conversa con personas de distintas áreas.
+              <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+                Encuentra personas, comparte oportunidades y mantén cerca a la
+                comunidad que empezó aquí.
               </p>
-              <div className="reveal-up reveal-up-delay-3 mt-9 flex flex-wrap items-center gap-4">
-                <Button
-                  size="lg"
-                  render={<Link href="/directorio" />}
-                  nativeButton={false}
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link
+                  href="/directorio"
+                  className={cn(buttonVariants({ size: "lg" }), "min-w-40")}
                 >
-                  <SearchIcon data-icon="inline-start" />
-                  Ver el directorio
-                </Button>
-                <Button
-                  size="lg"
-                  variant="link"
-                  render={<Link href="#para-la-red" />}
-                  nativeButton={false}
+                  Explorar la red
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+                <Link
+                  href="/oportunidades"
+                  className={buttonVariants({ variant: "outline", size: "lg" })}
                 >
-                  Conoce la red
-                  <ArrowDownIcon data-icon="inline-end" />
-                </Button>
+                  Ver oportunidades
+                </Link>
               </div>
             </div>
 
-            <div className="reveal-up reveal-up-delay-2 relative lg:pl-4">
-              <div className="relative border border-border bg-card/95 p-5 shadow-[10px_10px_0_0_var(--border)] sm:p-8">
-                <div className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-primary">
-                      Directorio privado
-                    </p>
-                    <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-                      Perfiles de la comunidad
-                    </h2>
-                  </div>
-                  <SearchIcon className="size-5 text-muted-foreground" />
-                </div>
+            <div className="min-w-0">
+              {featuredAlumni.length >= 2 ? (
+                <AlumniSpotlight profiles={featuredAlumni} />
+              ) : (
+                <NetworkPreview />
+              )}
+            </div>
+          </div>
+        </section>
 
-                <div className="divide-y divide-border">
-                  {directoryPreview.map((profile) => (
-                    <div
-                      key={profile.topic}
-                      className="group grid gap-4 py-5 sm:grid-cols-[1fr_0.9fr] sm:items-center"
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-accent font-heading text-sm font-semibold text-accent-foreground">
-                          {profile.initials}
-                        </span>
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {profile.area}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Generación {profile.generation}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 sm:border-l sm:border-border sm:pl-6">
-                        <p className="text-sm font-medium text-primary sm:text-base">
-                          {profile.topic}
+        <section id="para-la-red" className="bg-foreground text-background">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+            <h2 className="max-w-5xl text-4xl leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-6xl">
+              Personas, experiencia y oportunidades en un solo lugar.
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
+              Una red privada para que el conocimiento y las oportunidades
+              circulen entre generaciones de ICC.
+            </p>
+          </div>
+        </section>
+
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <article className="grid gap-10 border-b border-border py-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20 lg:py-20">
+              <div className="max-w-md">
+                <p className="text-sm font-semibold text-primary">Directorio</p>
+                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                  Encuentra experiencia dentro de la comunidad.
+                </h3>
+                <p className="mt-5 leading-relaxed text-muted-foreground">
+                  Explora perfiles por área y generación. Cada persona decide
+                  qué experiencia y formas de contacto compartir.
+                </p>
+                <Link
+                  href="/directorio"
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "mt-5 px-0"
+                  )}
+                >
+                  Explorar personas
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+              </div>
+
+              <div className="border-y border-border">
+                {directoryPreview.map((profile) => (
+                  <div
+                    key={profile.topic}
+                    className="grid gap-4 border-b border-border py-5 last:border-b-0 sm:grid-cols-[1fr_0.8fr_auto] sm:items-center"
+                  >
+                    <div className="flex min-w-0 items-center gap-4">
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
+                        {profile.initials}
+                      </span>
+                      <div>
+                        <p className="font-semibold">{profile.area}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Generación {profile.generation}
                         </p>
-                        <ArrowRightIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <p className="border-t border-border pt-5 text-center text-sm text-muted-foreground">
-                  Busca por área, generación o experiencia
-                </p>
-              </div>
-              <div
-                aria-hidden
-                className="absolute -right-3 -bottom-3 size-6 border-r-2 border-b-2 border-signal"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section id="para-la-red" className="border-b border-border">
-          <div className="relative mx-auto max-w-7xl px-4 py-20 text-center sm:px-6 sm:py-28">
-            <div
-              aria-hidden
-              className="paper-grid absolute top-0 left-0 h-40 w-48 [mask-image:linear-gradient(to_bottom_right,black,transparent)] opacity-50"
-            />
-            <h2 className="font-editorial mx-auto max-w-4xl text-5xl leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-7xl">
-              Una comunidad para compartir experiencias.
-            </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Conoce a estudiantes y alumni, descubre en qué trabajan y
-              encuentra personas con intereses similares.
-            </p>
-          </div>
-
-          <div className="grid border-t border-border lg:grid-cols-2">
-            <article className="bg-accent/60 px-6 py-14 sm:px-10 sm:py-20 lg:px-[max(2.5rem,calc((100vw-80rem)/2))] lg:pr-16">
-              <div className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-primary uppercase">
-                <GraduationCapIcon className="size-5" />
-                <span>Para estudiantes</span>
-              </div>
-              <h3 className="font-editorial mt-10 max-w-xl text-4xl leading-none tracking-[-0.025em] sm:text-6xl">
-                Conoce a quienes egresaron de ICC.
-              </h3>
-              <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Explora perfiles por área, generación o experiencia y conversa
-                con alumni sobre su trabajo y trayectoria.
-              </p>
-              <Button
-                className="mt-8"
-                variant="link"
-                render={<Link href="/directorio" />}
-                nativeButton={false}
-              >
-                Explorar perfiles
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
-            </article>
-
-            <article className="border-t border-border px-6 py-14 sm:px-10 sm:py-20 lg:border-t-0 lg:border-l lg:px-[max(2.5rem,calc((100vw-80rem)/2))] lg:pl-16">
-              <div className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] text-primary uppercase">
-                <UserRoundIcon className="size-5" />
-                <span>Para alumni</span>
-              </div>
-              <h3 className="font-editorial mt-10 max-w-xl text-4xl leading-none tracking-[-0.025em] sm:text-6xl">
-                Sigue en contacto con la comunidad.
-              </h3>
-              <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Comparte tu experiencia, los temas sobre los que te gustaría
-                conversar y cómo prefieres que te contacten.
-              </p>
-              <Button
-                className="mt-8"
-                variant="link"
-                render={<Link href="/perfil" />}
-                nativeButton={false}
-              >
-                Completar mi perfil
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
-            </article>
-          </div>
-        </section>
-
-        <section id="como-funciona" className="relative">
-          <div
-            aria-hidden
-            className="paper-grid absolute top-0 right-0 h-52 w-80 [mask-image:linear-gradient(to_bottom_left,black,transparent)] opacity-50"
-          />
-          <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28">
-            <p className="text-sm font-semibold tracking-[0.14em] text-primary uppercase">
-              Cómo funciona
-            </p>
-            <div aria-hidden className="mt-4 h-0.5 w-10 bg-signal" />
-            <h2 className="font-editorial mt-6 text-5xl leading-none tracking-[-0.035em] sm:text-7xl">
-              Empieza en tres pasos.
-            </h2>
-
-            <ol className="mt-16 grid gap-10 lg:grid-cols-3 lg:gap-0">
-              {steps.map((step, index) => (
-                <li key={step.title} className="relative lg:pr-10">
-                  <div className="flex items-center">
-                    <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-foreground font-heading text-sm font-medium text-signal">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    {index < steps.length - 1 ? (
-                      <Separator className="ml-3 hidden bg-foreground lg:block" />
-                    ) : null}
+                    <p className="text-sm font-medium">{profile.topic}</p>
+                    <ArrowRightIcon className="text-primary" />
                   </div>
-                  <h3 className="font-editorial mt-7 text-3xl leading-tight tracking-[-0.02em]">
-                    {String(index + 1).padStart(2, "0")} · {step.title}
-                  </h3>
-                  <p className="mt-3 max-w-sm leading-relaxed text-muted-foreground">
+                ))}
+              </div>
+            </article>
+
+            <article className="grid gap-10 py-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20 lg:py-20">
+              <div className="max-w-md">
+                <p className="text-sm font-semibold text-signal">
+                  Oportunidades
+                </p>
+                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                  Abre la próxima puerta para alguien de ICC.
+                </h3>
+                <p className="mt-5 leading-relaxed text-muted-foreground">
+                  Alumni comparten empleos y prácticas. Toda la comunidad
+                  verificada puede revisarlos y postular.
+                </p>
+                <Link
+                  href="/oportunidades"
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "mt-5 px-0"
+                  )}
+                >
+                  Ver oportunidades
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+              </div>
+
+              <div className="border-y border-border">
+                {[
+                  ["Empleos", "Cargos compartidos por la red"],
+                  ["Prácticas", "Primeras experiencias profesionales"],
+                  ["Postulación directa", "Enlace o contacto en cada aviso"],
+                ].map(([title, description]) => (
+                  <div
+                    key={title}
+                    className="grid gap-2 border-b border-border py-6 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:items-baseline"
+                  >
+                    <p className="font-semibold">{title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <h2 className="max-w-xl text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+                Accede en tres pasos
+              </h2>
+              <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+                La verificación mantiene los perfiles y oportunidades dentro de
+                la comunidad.
+              </p>
+            </div>
+
+            <ol className="mt-12 grid border-y border-border md:grid-cols-3">
+              {steps.map((step, index) => (
+                <li
+                  key={step.title}
+                  className="border-b border-border py-8 last:border-b-0 md:border-r md:border-b-0 md:px-8 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
+                >
+                  <span
+                    className={cn(
+                      "text-sm font-bold",
+                      index === 0
+                        ? "text-signal"
+                        : index === 1
+                          ? "text-primary"
+                          : "text-foreground"
+                    )}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-5 text-xl font-semibold">{step.title}</h3>
+                  <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
                     {step.body}
                   </p>
                 </li>
@@ -248,49 +283,51 @@ export default function HomePage() {
             </ol>
           </div>
 
-          <div className="bg-primary text-primary-foreground">
-            <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.4fr_0.8fr_auto] lg:items-center">
-              <h2 className="font-editorial max-w-2xl text-4xl leading-[1.05] tracking-[-0.025em] sm:text-5xl">
-                Súmate a la comunidad ICC.
-              </h2>
-              <p className="max-w-md text-sm leading-relaxed text-primary-foreground/75 sm:text-base">
-                Inicia sesión con tu correo institucional o solicita acceso si
-                eres alumni.
-              </p>
-              <Button
-                size="lg"
-                variant="secondary"
-                render={<Link href="/sign-in" />}
-                nativeButton={false}
+          <div className="border-t border-border bg-foreground text-background">
+            <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <h2 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                  La comunidad ICC te espera.
+                </h2>
+                <p className="mt-3 text-background/70">
+                  Verifica tu cuenta y empieza a participar.
+                </p>
+              </div>
+              <Link
+                href="/sign-in"
+                className={cn(
+                  buttonVariants({ variant: "secondary", size: "lg" }),
+                  "w-fit"
+                )}
               >
                 Iniciar sesión
                 <ArrowRightIcon data-icon="inline-end" />
-              </Button>
+              </Link>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-border py-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-6">
+      <footer className="border-t border-border bg-background py-9">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
-            <p className="font-editorial text-2xl">Red Alumni ICC</p>
+            <p className="text-lg font-semibold">Red Alumni ICC</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Directorio privado · solo miembros verificados
+              Una red privada para la comunidad ICC.
             </p>
           </div>
           <Link
             href="https://icc.utalca.cl"
             target="_blank"
             rel="noreferrer"
-            aria-label="Sitio de Ingeniería Civil en Computación, Universidad de Talca"
+            aria-label="Sitio de Ingeniería Civil en Computación"
           >
             <Image
-              src="/icc-utalca-logo.png"
-              alt="Universidad de Talca e Ingeniería Civil en Computación"
-              width={160}
-              height={97}
-              className="h-auto w-40"
+              src="/icc-logo.png"
+              alt="Ingeniería Civil en Computación"
+              width={139}
+              height={132}
+              className="h-auto w-32"
             />
           </Link>
         </div>

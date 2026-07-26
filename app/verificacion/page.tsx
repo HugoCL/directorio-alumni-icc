@@ -78,10 +78,15 @@ export default function VerificationPage() {
     return (
       <div className="min-h-svh">
         <SiteHeader />
-        <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
-          <Skeleton className="h-10 w-56" />
-          <Skeleton className="mt-6 h-64 w-full" />
-        </div>
+        <main
+          id="main-content"
+          aria-busy="true"
+          className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-12"
+        >
+          <Skeleton className="h-9 w-72 max-w-full" />
+          <Skeleton className="mt-4 h-12 w-full" />
+          <Skeleton className="mt-8 h-64 w-full" />
+        </main>
       </div>
     )
   }
@@ -91,15 +96,14 @@ export default function VerificationPage() {
   return (
     <div className="min-h-svh">
       <SiteHeader />
-      <main className="mx-auto max-w-xl px-4 py-12 sm:px-6">
-        <p className="text-sm font-medium tracking-wide text-primary uppercase">
-          Verificación
-        </p>
-        <h1 className="font-editorial mt-3 text-4xl tracking-[-0.03em]">
+      <main
+        id="main-content"
+        className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-12"
+      >
+        <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance">
           Confirma que eres parte de ICC
         </h1>
-        <div aria-hidden className="mt-3 h-0.5 w-10 bg-signal" />
-        <p className="mt-3 text-muted-foreground">
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
           Los correos @alumnos.utalca.cl se aprueban automáticamente. Si eres
           exalumno, revisaremos estos antecedentes.
         </p>
@@ -138,7 +142,7 @@ export default function VerificationPage() {
 
             <form
               onSubmit={onSubmit}
-              className="mt-8 border border-border bg-card p-6 shadow-[6px_6px_0_0_var(--border)]"
+              className="mt-8 border-y border-border py-6 sm:py-8"
             >
               <FieldGroup>
                 <Field>
@@ -147,6 +151,7 @@ export default function VerificationPage() {
                   </FieldLabel>
                   <Input
                     id="verification-name"
+                    autoComplete="name"
                     required
                     minLength={2}
                     value={name}
@@ -185,6 +190,7 @@ export default function VerificationPage() {
                   <Input
                     id="verification-linkedin"
                     type="url"
+                    autoComplete="url"
                     required
                     placeholder="https://www.linkedin.com/in/tu-perfil"
                     value={linkedinUrl}
@@ -195,7 +201,11 @@ export default function VerificationPage() {
                   </FieldDescription>
                 </Field>
               </FieldGroup>
-              <Button type="submit" className="mt-6" disabled={saving}>
+              <Button
+                type="submit"
+                className="mt-6 h-11 w-full sm:w-auto"
+                disabled={saving}
+              >
                 {saving
                   ? "Enviando…"
                   : request

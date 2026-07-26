@@ -8,7 +8,9 @@
  * @module
  */
 
+import type * as jobs from "../jobs.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_jobs from "../lib/jobs.js";
 import type * as lib_validators from "../lib/validators.js";
 import type * as lib_verification from "../lib/verification.js";
 import type * as profiles from "../profiles.js";
@@ -23,7 +25,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  jobs: typeof jobs;
   "lib/auth": typeof lib_auth;
+  "lib/jobs": typeof lib_jobs;
   "lib/validators": typeof lib_validators;
   "lib/verification": typeof lib_verification;
   profiles: typeof profiles;

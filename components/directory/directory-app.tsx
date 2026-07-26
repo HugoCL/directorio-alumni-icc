@@ -3,15 +3,22 @@
 import { useEffect, useMemo, useState, useTransition } from "react"
 import Link from "next/link"
 import { usePaginatedQuery, useQuery } from "convex/react"
-import { ExternalLinkIcon, MailIcon, PhoneIcon, SearchIcon } from "lucide-react"
-import { api } from "@/convex/_generated/api"
+import {
+  ArrowRightIcon,
+  ExternalLinkIcon,
+  MailIcon,
+  PhoneIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+} from "lucide-react"
 import type { Doc, Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { AREAS, GENERATIONS } from "@/lib/taxonomy"
 import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Empty,
   EmptyDescription,
@@ -27,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetContent,
@@ -42,79 +48,171 @@ const areaItems = [
 ]
 
 const generationItems = [
-  { label: "Todas", value: "all" },
-  ...GENERATIONS.map((value) => ({ label: `Gen. ${value}`, value })),
+  { label: "Todas las generaciones", value: "all" },
+  ...GENERATIONS.map((value) => ({ label: `Generación ${value}`, value })),
 ]
 
 type Profile = Doc<"profiles">
 
+type DirectoryFiltersProps = {
+  area: string
+  generation: string
+  searchInput: string
+  onAreaChange: (value: string | null) => void
+  onGenerationChange: (value: string | null) => void
+  onSearchChange: (value: string) => void
+  className?: string
+}
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("")
+}
+
+function DirectoryFilters({
+  area,
+  generation,
+  searchInput,
+  onAreaChange,
+  onGenerationChange,
+  onSearchChange,
+  className,
+}: DirectoryFiltersProps) {
+  return (
+    <div className={cn("grid gap-3 lg:grid-cols-[1fr_13rem_13rem]", className)}>
+      <div className="relative min-w-0">
+        <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={searchInput}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Buscar por nombre"
+          className="pl-9"
+          aria-label="Buscar por nombre"
+        />
+      </div>
+      <Select items={areaItems} value={area} onValueChange={onAreaChange}>
+        <SelectTrigger className="w-full" aria-label="Área">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {areaItems.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Select
+        items={generationItems}
+        value={generation}
+        onValueChange={onGenerationChange}
+      >
+        <SelectTrigger className="w-full" aria-label="Generación">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {generationItems.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
 function ProfileDetail({ profile }: { profile: Profile }) {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {profile.fullName}
-        </h2>
-        <p className="mt-1 text-muted-foreground">
-          {profile.title} · {profile.company}
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="secondary">Gen. {profile.generation}</Badge>
-          <Badge variant="outline">{profile.area}</Badge>
-          <Badge variant="outline">{profile.location}</Badge>
+    <div className="flex flex-col gap-7">
+      <div className="flex items-start gap-4">
+        <Avatar className="size-20">
+          {profile.photoUrl ? (
+            <AvatarImage
+              src={profile.photoUrl}
+              alt={`Foto de ${profile.fullName}`}
+            />
+          ) : null}
+          <AvatarFallback>{initials(profile.fullName)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1 pt-1">
+          <h2 className="text-2xl font-semibold tracking-[-0.03em]">
+            {profile.fullName}
+          </h2>
+          <p className="mt-1 text-muted-foreground">{profile.title}</p>
+          <p className="font-medium">{profile.company}</p>
         </div>
       </div>
 
-      <div>
-        <h3 className="text-sm font-medium text-foreground">
-          Puede ayudarte con
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+      <dl className="border-y border-border text-sm">
+        {[
+          ["Generación", profile.generation],
+          ["Área", profile.area],
+          ["Ubicación", profile.location],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="grid grid-cols-[7.5rem_1fr] gap-4 border-b border-border py-3 last:border-b-0"
+          >
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="text-right font-medium">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="border-b border-border pb-7">
+        <h3 className="font-semibold">Puede ayudarte con</h3>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           {profile.helpWith}
         </p>
       </div>
 
-      <Separator />
-
-      <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium">Contacto</h3>
-        <div className="mt-2 flex flex-col gap-2">
-          <Button
-            variant="outline"
-            className="justify-start"
-            render={<a href={`mailto:${profile.contactEmail}`} />}
-            nativeButton={false}
+      <div>
+        <h3 className="font-semibold">Conecta</h3>
+        <div className="mt-4 flex flex-col gap-2">
+          <a
+            href={`mailto:${profile.contactEmail}`}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "min-w-0 justify-start"
+            )}
           >
             <MailIcon data-icon="inline-start" />
-            {profile.contactEmail}
-          </Button>
+            <span className="truncate">{profile.contactEmail}</span>
+          </a>
           {profile.linkedinUrl ? (
-            <Button
-              variant="outline"
-              className="justify-start"
-              render={
-                <a
-                  href={profile.linkedinUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                />
-              }
-              nativeButton={false}
+            <a
+              href={profile.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "justify-start"
+              )}
             >
               <ExternalLinkIcon data-icon="inline-start" />
-              LinkedIn
-            </Button>
+              Ver perfil de LinkedIn
+            </a>
           ) : null}
           {profile.phone ? (
-            <Button
-              variant="outline"
-              className="justify-start"
-              render={<a href={`tel:${profile.phone}`} />}
-              nativeButton={false}
+            <a
+              href={`tel:${profile.phone}`}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "justify-start"
+              )}
             >
               <PhoneIcon data-icon="inline-start" />
               {profile.phone}
-            </Button>
+            </a>
           ) : null}
         </div>
       </div>
@@ -126,8 +224,8 @@ export function DirectoryApp() {
   const me = useQuery(api.users.me)
   const [searchInput, setSearchInput] = useState("")
   const [search, setSearch] = useState("")
-  const [area, setArea] = useState<string>("all")
-  const [generation, setGeneration] = useState<string>("all")
+  const [area, setArea] = useState("all")
+  const [generation, setGeneration] = useState("all")
   const [selectedId, setSelectedId] = useState<Id<"profiles"> | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [, startTransition] = useTransition()
@@ -169,10 +267,13 @@ export function DirectoryApp() {
     return (
       <div className="min-h-svh">
         <SiteHeader />
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <main
+          id="main-content"
+          className="mx-auto max-w-7xl px-4 py-10 sm:px-6"
+        >
           <Skeleton className="h-10 w-64" />
-          <Skeleton className="mt-6 h-72 w-full" />
-        </div>
+          <Skeleton className="mt-8 h-72 w-full" />
+        </main>
       </div>
     )
   }
@@ -181,7 +282,7 @@ export function DirectoryApp() {
     return (
       <div className="min-h-svh">
         <SiteHeader />
-        <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
+        <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
           <Alert>
             <AlertTitle>Verifica tu cuenta</AlertTitle>
             <AlertDescription>
@@ -189,133 +290,104 @@ export function DirectoryApp() {
               exalumno.
             </AlertDescription>
           </Alert>
-          <Button
-            className="mt-6"
-            render={<Link href="/verificacion" />}
-            nativeButton={false}
-          >
+          <Link href="/verificacion" className={cn(buttonVariants(), "mt-6")}>
             Ir a verificación
-          </Button>
-        </div>
+          </Link>
+        </main>
       </div>
     )
+  }
+
+  const resultCount = results
+    ? `${results.length}${status === "CanLoadMore" || status === "LoadingMore" ? "+" : ""} perfiles`
+    : "Cargando perfiles"
+  const hasActiveFilters =
+    Boolean(search) || area !== "all" || generation !== "all"
+
+  const filterProps = {
+    area,
+    generation,
+    searchInput,
+    onAreaChange: (value: string | null) => setArea(value ?? "all"),
+    onGenerationChange: (value: string | null) => setGeneration(value ?? "all"),
+    onSearchChange: setSearchInput,
   }
 
   return (
     <div className="min-h-svh">
       <SiteHeader />
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <main id="main-content" className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <header className="flex flex-col justify-between gap-5 border-b border-border pb-8 sm:flex-row sm:items-end">
+          <div>
+            <h1 className="text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+              Personas
+            </h1>
+            <p className="mt-3 text-muted-foreground">
+              Encuentra experiencia dentro de la comunidad ICC.
+            </p>
+          </div>
+          <p className="text-sm font-medium" aria-live="polite">
+            {resultCount}
+          </p>
+        </header>
+
         {me.role === "alumni" && !me.profileComplete ? (
-          <Alert className="mb-6">
+          <Alert className="mt-6 rounded-none border-x-0 px-0">
             <AlertTitle>Completa tu perfil</AlertTitle>
-            <AlertDescription className="flex flex-wrap items-center gap-3">
-              <span>
-                Publica cómo pueden contactarte para desbloquear todo el
-                directorio con contexto.
-              </span>
-              <Button
-                size="sm"
-                render={<Link href="/perfil" />}
-                nativeButton={false}
+            <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
+              <span>Ayuda a que la comunidad también pueda encontrarte.</span>
+              <Link
+                href="/perfil"
+                className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                Ir a mi perfil
-              </Button>
+                Completar perfil
+                <ArrowRightIcon data-icon="inline-end" />
+              </Link>
             </AlertDescription>
           </Alert>
         ) : null}
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="font-editorial text-4xl tracking-[-0.03em]">
-              Directorio
-            </h1>
-            <div aria-hidden className="mt-3 h-0.5 w-10 bg-signal" />
-            <p
-              className="mt-1 text-sm text-muted-foreground"
-              aria-live="polite"
-            >
-              {results
-                ? `${results.length}${status === "CanLoadMore" || status === "LoadingMore" ? "+" : ""} perfiles`
-                : "Cargando…"}
-            </p>
-          </div>
-        </div>
+        <DirectoryFilters
+          {...filterProps}
+          className="mt-6 hidden border-b border-border pb-6 sm:grid"
+        />
 
-        <div className="sticky top-0 z-10 mt-6 flex flex-col gap-3 border-y border-border bg-background py-4 sm:flex-row sm:items-center">
-          <div className="relative min-w-0 flex-1">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Buscar por nombre"
-              className="pl-9"
-              aria-label="Buscar por nombre"
-            />
-          </div>
-          <Select
-            items={areaItems}
-            value={area}
-            onValueChange={(v) => setArea(v ?? "all")}
-          >
-            <SelectTrigger className="w-full sm:w-44" aria-label="Área">
-              <SelectValue placeholder="Área" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {areaItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select
-            items={generationItems}
-            value={generation}
-            onValueChange={(v) => setGeneration(v ?? "all")}
-          >
-            <SelectTrigger className="w-full sm:w-40" aria-label="Generación">
-              <SelectValue placeholder="Generación" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {generationItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <details className="group mt-6 border-y border-border sm:hidden">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between py-3 font-medium [&::-webkit-details-marker]:hidden">
+            Buscar y filtrar
+            <SlidersHorizontalIcon className="size-4 text-muted-foreground" />
+          </summary>
+          <DirectoryFilters {...filterProps} className="border-t py-4" />
+        </details>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <div className="min-w-0">
-            <div className="mb-2 hidden grid-cols-[1fr_7rem_7rem] gap-3 px-3 text-xs font-medium text-muted-foreground lg:grid">
+        <div className="mt-8 grid min-w-0 lg:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.85fr)]">
+          <section className="min-w-0 lg:pr-9" aria-label="Perfiles">
+            <div className="hidden grid-cols-[1fr_9rem_7rem_1.5rem] gap-4 border-b border-border px-4 pb-3 text-sm font-medium text-muted-foreground lg:grid">
               <span>Nombre</span>
               <span>Área</span>
               <span>Generación</span>
+              <span />
             </div>
-            <ul
-              className="divide-y divide-border border border-border"
-              role="listbox"
-              aria-label="Resultados"
-            >
+            <ul className="divide-y divide-border border-b border-border">
               {!results ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <li key={i} className="p-3">
-                    <Skeleton className="h-12 w-full" />
+                Array.from({ length: 6 }).map((_, index) => (
+                  <li key={index} className="py-3">
+                    <Skeleton className="h-16 w-full" />
                   </li>
                 ))
               ) : results.length === 0 ? (
-                <li className="p-8">
+                <li className="py-12">
                   <Empty>
                     <EmptyHeader>
-                      <EmptyTitle>Sin coincidencias</EmptyTitle>
+                      <EmptyTitle>
+                        {hasActiveFilters
+                          ? "Sin coincidencias"
+                          : "Aún no hay perfiles publicados"}
+                      </EmptyTitle>
                       <EmptyDescription>
-                        Prueba otro nombre, limpia los filtros o publica tu
-                        propio perfil.
+                        {hasActiveFilters
+                          ? "Prueba otro nombre o limpia los filtros."
+                          : "Los perfiles aparecerán aquí cuando alumni decidan compartirlos."}
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>
@@ -327,11 +399,10 @@ export function DirectoryApp() {
                     <li key={profile._id}>
                       <button
                         type="button"
-                        role="option"
-                        aria-selected={isSelected}
+                        aria-current={isSelected ? "true" : undefined}
                         aria-controls="profile-panel"
                         className={cn(
-                          "grid w-full grid-cols-1 gap-1 px-3 py-3 text-left transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none lg:grid-cols-[1fr_7rem_7rem] lg:items-center lg:gap-3",
+                          "grid min-h-20 w-full grid-cols-[1fr_auto] gap-3 px-4 py-3 text-left transition-colors outline-none hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset lg:grid-cols-[1fr_9rem_7rem_1.5rem] lg:items-center lg:gap-4",
                           isSelected && "bg-accent"
                         )}
                         onClick={() => {
@@ -341,18 +412,32 @@ export function DirectoryApp() {
                           )
                         }}
                       >
-                        <div className="min-w-0">
-                          <p className="truncate font-medium">
-                            {profile.fullName}
-                          </p>
-                          <p className="truncate text-sm text-muted-foreground">
-                            {profile.title} · {profile.company}
-                          </p>
+                        <div className="flex min-w-0 items-center gap-3">
+                          <Avatar className="size-12">
+                            {profile.photoUrl ? (
+                              <AvatarImage
+                                src={profile.photoUrl}
+                                alt={`Foto de ${profile.fullName}`}
+                              />
+                            ) : null}
+                            <AvatarFallback>
+                              {initials(profile.fullName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="truncate font-semibold">
+                              {profile.fullName}
+                            </p>
+                            <p className="truncate text-sm text-muted-foreground">
+                              {profile.title} · {profile.company}
+                            </p>
+                          </div>
                         </div>
-                        <span className="text-sm text-muted-foreground lg:truncate">
+                        <ArrowRightIcon className="self-center text-primary lg:order-last" />
+                        <span className="col-span-2 ml-15 text-sm text-muted-foreground lg:col-span-1 lg:ml-0 lg:truncate">
                           {profile.area}
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="hidden text-sm text-muted-foreground lg:block">
                           {profile.generation}
                         </span>
                       </button>
@@ -365,19 +450,19 @@ export function DirectoryApp() {
             {status === "CanLoadMore" || status === "LoadingMore" ? (
               <Button
                 variant="outline"
-                className="mt-4 w-full"
+                className="mt-5 w-full"
                 disabled={status === "LoadingMore"}
                 onClick={() => loadMore(20)}
               >
                 {status === "LoadingMore" ? "Cargando…" : "Cargar más"}
               </Button>
             ) : null}
-          </div>
+          </section>
 
           <aside
             id="profile-panel"
             aria-live="polite"
-            className="hidden border border-border bg-card p-6 shadow-[6px_6px_0_0_var(--border)] lg:block"
+            className="hidden border-l border-border pl-9 lg:block"
           >
             {selected ? (
               <ProfileDetail profile={selected} />
@@ -388,17 +473,19 @@ export function DirectoryApp() {
             )}
           </aside>
         </div>
-      </div>
+      </main>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent
           side="bottom"
-          className="max-h-[85svh] overflow-y-auto lg:hidden"
+          className="max-h-[88svh] overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+1.5rem)] lg:hidden"
         >
           <SheetHeader>
-            <SheetTitle>{selected?.fullName ?? "Perfil"}</SheetTitle>
+            <SheetTitle className="sr-only">
+              {selected ? `Perfil de ${selected.fullName}` : "Perfil"}
+            </SheetTitle>
           </SheetHeader>
-          <div className="px-4 pb-6">
+          <div className="px-4 pb-4">
             {selected ? <ProfileDetail profile={selected} /> : null}
           </div>
         </SheetContent>

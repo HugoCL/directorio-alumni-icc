@@ -3,6 +3,9 @@ import { v } from "convex/values"
 import {
   areaValidator,
   inviteStatusValidator,
+  jobKindValidator,
+  jobModeValidator,
+  jobStatusValidator,
   roleValidator,
   verificationStatusValidator,
 } from "./lib/validators"
@@ -35,6 +38,23 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_status", ["status"]),
 
+  jobs: defineTable({
+    authorUserId: v.id("users"),
+    authorName: v.string(),
+    kind: jobKindValidator,
+    mode: jobModeValidator,
+    title: v.string(),
+    company: v.string(),
+    location: v.string(),
+    description: v.string(),
+    applicationUrl: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
+    status: jobStatusValidator,
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_status_and_kind", ["status", "kind"]),
+
   profiles: defineTable({
     userId: v.id("users"),
     fullName: v.string(),
@@ -47,11 +67,14 @@ export default defineSchema({
     contactEmail: v.string(),
     linkedinUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
+    photoUrl: v.optional(v.string()),
+    featuredOnLanding: v.optional(v.boolean()),
     published: v.boolean(),
     updatedAt: v.number(),
   })
     .index("by_user", ["userId"])
     .index("by_published", ["published"])
+    .index("by_landing_featured", ["featuredOnLanding", "updatedAt"])
     .index("by_published_and_area", ["published", "area"])
     .index("by_published_and_generation", ["published", "generation"])
     .searchIndex("search_directory", {

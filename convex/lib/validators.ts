@@ -27,6 +27,39 @@ export const inviteStatusValidator = v.union(
   v.literal("revoked")
 )
 
+export const jobKindValidator = v.union(
+  v.literal("job"),
+  v.literal("internship")
+)
+
+export const jobModeValidator = v.union(
+  v.literal("onsite"),
+  v.literal("hybrid"),
+  v.literal("remote")
+)
+
+export const jobStatusValidator = v.union(
+  v.literal("open"),
+  v.literal("closed")
+)
+
+export const jobValidator = v.object({
+  _id: v.id("jobs"),
+  _creationTime: v.number(),
+  authorUserId: v.id("users"),
+  authorName: v.string(),
+  kind: jobKindValidator,
+  mode: jobModeValidator,
+  title: v.string(),
+  company: v.string(),
+  location: v.string(),
+  description: v.string(),
+  applicationUrl: v.optional(v.string()),
+  contactEmail: v.optional(v.string()),
+  status: jobStatusValidator,
+  updatedAt: v.number(),
+})
+
 export const profileValidator = v.object({
   _id: v.id("profiles"),
   _creationTime: v.number(),
@@ -41,8 +74,19 @@ export const profileValidator = v.object({
   contactEmail: v.string(),
   linkedinUrl: v.optional(v.string()),
   phone: v.optional(v.string()),
+  photoUrl: v.optional(v.string()),
+  featuredOnLanding: v.optional(v.boolean()),
   published: v.boolean(),
   updatedAt: v.number(),
+})
+
+export const landingProfileValidator = v.object({
+  _id: v.id("profiles"),
+  fullName: v.string(),
+  generation: v.string(),
+  title: v.string(),
+  company: v.string(),
+  photoUrl: v.string(),
 })
 
 export const userValidator = v.object({

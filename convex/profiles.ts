@@ -4,8 +4,13 @@ import {
 } from "convex/server"
 import { v } from "convex/values"
 import { mutation, query } from "./_generated/server"
+import { canFeatureProfile, isOwnedProfilePhotoUrl } from "../lib/profile-photo"
 import { requireAlumni, requireDirectoryAccess } from "./lib/auth"
-import { areaValidator, profileValidator } from "./lib/validators"
+import {
+  areaValidator,
+  landingProfileValidator,
+  profileValidator,
+} from "./lib/validators"
 
 const GENERATIONS = new Set(
   Array.from({ length: 14 }, (_, i) => String(2013 + i))
@@ -88,6 +93,8 @@ export const upsertMine = mutation({
     contactEmail: v.string(),
     linkedinUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
+    photoUrl: v.optional(v.string()),
+    featuredOnLanding: v.optional(v.boolean()),
     published: v.boolean(),
   },
   returns: v.id("profiles"),
@@ -96,6 +103,15 @@ export const upsertMine = mutation({
     validateProfileInput(args)
     const linkedinUrl = normalizeLinkedIn(args.linkedinUrl)
     const phone = args.phone?.trim() || undefined
+    const photoUrl = args.photoUrl?.trim() || undefined
+    if (photoUrl && !isOwnedProfilePhotoUrl(photoUrl, user.clerkUserId)) {
+      throw new Error("URL de foto inválida")
+    }
+    const featuredOnLanding = canFeatureProfile(
+      args.published,
+      photoUrl,
+      args.featuredOnLanding
+    )
     const now = Date.now()
 
     const existing = await ctx.db
@@ -115,6 +131,8 @@ export const upsertMine = mutation({
       contactEmail: args.contactEmail.trim().toLowerCase(),
       linkedinUrl,
       phone,
+      photoUrl,
+      featuredOnLanding,
       published: args.published,
       updatedAt: now,
     }
@@ -134,6 +152,33 @@ export const upsertMine = mutation({
     })
 
     return profileId
+  },
+})
+
+export const listLandingFeatured = query({
+  args: {},
+  returns: v.array(landingProfileValidator),
+  handler: async (ctx) => {
+    const profiles = await ctx.db
+      .query("profiles")
+      .withIndex("by_landing_featured", (q) => q.eq("featuredOnLanding", true))
+      .order("desc")
+      .take(3)
+
+    return profiles.flatMap((profile) =>
+      profile.published && profile.photoUrl
+        ? [
+            {
+              _id: profile._id,
+              fullName: profile.fullName,
+              generation: profile.generation,
+              title: profile.title,
+              company: profile.company,
+              photoUrl: profile.photoUrl,
+            },
+          ]
+        : []
+    )
   },
 })
 

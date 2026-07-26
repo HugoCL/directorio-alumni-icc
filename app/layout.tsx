@@ -1,22 +1,16 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { shadcn } from "@clerk/ui/themes"
 import type { Metadata } from "next"
-import { Geist, Inter } from "next/font/google"
+import { Inter } from "next/font/google"
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider"
 import { SessionBootstrap } from "@/components/providers/session-bootstrap"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
 import "./globals.css"
-
-const geistHeading = Geist({
-  subsets: ["latin"],
-  variable: "--font-heading",
-})
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-inter",
 })
 
 export const metadata: Metadata = {
@@ -34,12 +28,28 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="es"
-      className={cn("font-sans", inter.variable, geistHeading.variable)}
-    >
+    <html lang="es" className={inter.variable}>
       <body className="icc-theme min-h-svh bg-background text-foreground antialiased">
-        <ClerkProvider appearance={{ theme: shadcn }}>
+        <a
+          href="#main-content"
+          className="fixed top-3 left-3 z-[60] -translate-y-24 bg-brand-ink px-4 py-3 font-semibold text-white focus:translate-y-0"
+        >
+          Saltar al contenido principal
+        </a>
+        <ClerkProvider
+          appearance={{
+            theme: shadcn,
+            variables: {
+              colorPrimary: "#007B70",
+              colorForeground: "#050403",
+              colorBackground: "#FFFFFF",
+              colorInput: "#F2F4F3",
+              colorInputForeground: "#050403",
+              borderRadius: "0.375rem",
+              fontFamily: "var(--font-inter)",
+            },
+          }}
+        >
           <ConvexClientProvider>
             <SessionBootstrap />
             <TooltipProvider>
