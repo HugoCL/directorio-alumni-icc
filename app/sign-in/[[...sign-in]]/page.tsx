@@ -22,11 +22,11 @@ export default function SignInPage() {
                 id="sign-in-statement"
                 className="max-w-lg text-3xl leading-[1.05] font-semibold tracking-[-0.035em] sm:text-4xl lg:text-5xl"
               >
-                Personas, experiencia y oportunidades, en un solo lugar.
+                Vuelve a la conversación.
               </h1>
               <p className="mt-5 max-w-md text-base leading-relaxed text-white/72 sm:text-lg">
-                Entra para explorar la red, contactar alumni y descubrir
-                oportunidades compartidas por la comunidad.
+                Encuentra a esa persona que puede orientarte, revisa lo nuevo en
+                la bolsa o ponte al día con la red.
               </p>
             </div>
           </div>

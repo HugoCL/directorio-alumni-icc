@@ -143,11 +143,11 @@ export function ProfileEditor() {
     const next: typeof errors = {}
     if (form.fullName.trim().length < 2)
       next.fullName = "Nombre demasiado corto"
-    if (!form.title.trim()) next.title = "Obligatorio"
-    if (!form.company.trim()) next.company = "Obligatorio"
-    if (!form.location.trim()) next.location = "Obligatorio"
+    if (!form.title.trim()) next.title = "Cuéntanos cuál es tu cargo o rol"
+    if (!form.company.trim()) next.company = "Indica dónde trabajas hoy"
+    if (!form.location.trim()) next.location = "Indica tu ciudad o país"
     if (form.helpWith.trim().length < 10) {
-      next.helpWith = "Escribe al menos 10 caracteres"
+      next.helpWith = "Cuéntanos un poco más para que sepan cuándo contactarte"
     }
     if (!form.contactEmail.includes("@")) {
       next.contactEmail = "Correo inválido"
@@ -171,7 +171,7 @@ export function ProfileEditor() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) {
-      toast.error("Revisa los campos marcados")
+      toast.error("Hay algunos datos por completar")
       return
     }
     setSaving(true)
@@ -288,7 +288,7 @@ export function ProfileEditor() {
         <SiteHeader />
         <main
           id="main-content"
-          className="mx-auto max-w-5xl px-4 py-10 sm:px-6"
+          className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12"
         >
           <Skeleton className="h-10 w-48" />
           <Skeleton className="mt-6 h-96 w-full" />
@@ -297,16 +297,37 @@ export function ProfileEditor() {
     )
   }
 
-  if (!me || me.role === "student") {
+  if (!me) {
     return (
       <div className="min-h-svh">
         <SiteHeader />
         <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
           <Alert>
-            <AlertTitle>Sin acceso</AlertTitle>
+            <AlertTitle>Esta parte de la red es privada</AlertTitle>
             <AlertDescription>
-              Los perfiles públicos están disponibles solo para alumni
-              verificados.
+              Confirma tu vínculo con ICC antes de crear o editar tu perfil.
+            </AlertDescription>
+            <div className="mt-4">
+              <Link href="/verificacion" className={buttonVariants()}>
+                Verificar mi acceso
+              </Link>
+            </div>
+          </Alert>
+        </main>
+      </div>
+    )
+  }
+
+  if (me.role === "student") {
+    return (
+      <div className="min-h-svh">
+        <SiteHeader />
+        <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
+          <Alert>
+            <AlertTitle>Tu cuenta no publica un perfil</AlertTitle>
+            <AlertDescription>
+              Puedes explorar el directorio y las oportunidades. Los perfiles
+              personales están disponibles para alumni verificados.
             </AlertDescription>
           </Alert>
         </main>
@@ -317,14 +338,17 @@ export function ProfileEditor() {
   return (
     <div className="min-h-svh">
       <SiteHeader />
-      <main id="main-content" className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <main
+        id="main-content"
+        className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12"
+      >
         <div className="flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
               Mi perfil
             </h1>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              Mantén al día cómo puede encontrarte y contactarte la comunidad.
+              Cuenta en qué estás hoy y en qué temas te gustaría dar una mano.
             </p>
           </div>
           <Link
@@ -337,7 +361,9 @@ export function ProfileEditor() {
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[17rem_minmax(0,44rem)] lg:items-start lg:gap-16">
           <aside className="border-y border-border py-6 lg:sticky lg:top-24">
-            <p className="text-sm font-semibold text-primary">Vista previa</p>
+            <p className="text-sm font-semibold text-primary">
+              Así te verá la red
+            </p>
             <div className="mt-5 flex items-center gap-4">
               <Avatar className="size-16">
                 {photoPreview || form.photoUrl ? (
@@ -381,7 +407,7 @@ export function ProfileEditor() {
 
           <form onSubmit={onSubmit} className="flex min-w-0 flex-col gap-10">
             <FieldSet className="border-t border-border pt-7">
-              <FieldLegend>Identidad</FieldLegend>
+              <FieldLegend>Sobre ti</FieldLegend>
               <FieldGroup>
                 <Field data-invalid={!!errors.fullName || undefined}>
                   <FieldLabel htmlFor="fullName">Nombre completo</FieldLabel>
@@ -500,7 +526,7 @@ export function ProfileEditor() {
             </FieldSet>
 
             <FieldSet className="border-t border-border pt-7">
-              <FieldLegend>Experiencia</FieldLegend>
+              <FieldLegend>En qué estás</FieldLegend>
               <FieldGroup>
                 <Field data-invalid={!!errors.title || undefined}>
                   <FieldLabel htmlFor="title">Cargo</FieldLabel>
@@ -546,13 +572,15 @@ export function ProfileEditor() {
                   ) : null}
                 </Field>
                 <Field data-invalid={!!errors.helpWith || undefined}>
-                  <FieldLabel htmlFor="helpWith">Puede ayudarte con</FieldLabel>
+                  <FieldLabel htmlFor="helpWith">
+                    ¿En qué puedes dar una mano?
+                  </FieldLabel>
                   <Textarea
                     id="helpWith"
                     value={form.helpWith}
                     aria-invalid={!!errors.helpWith}
                     rows={4}
-                    placeholder="Mentoría de carrera, revisión de portafolio, consejos de entrevistas…"
+                    placeholder="Por ejemplo: cambio de carrera, entrevistas técnicas o revisión de portafolio."
                     onChange={(e) =>
                       setForm((f) => ({ ...f, helpWith: e.target.value }))
                     }
@@ -561,8 +589,8 @@ export function ProfileEditor() {
                     <FieldError>{errors.helpWith}</FieldError>
                   ) : (
                     <FieldDescription>
-                      Sé concreto: esto es lo que los estudiantes leerán
-                      primero.
+                      Escribe como si alguien de la carrera te hiciera la
+                      pregunta directamente.
                     </FieldDescription>
                   )}
                 </Field>
@@ -572,7 +600,7 @@ export function ProfileEditor() {
             <FieldSet className="border-t border-border pt-7">
               <FieldLegend>Contacto</FieldLegend>
               <FieldDescription className="mb-4">
-                Solo miembros autenticados de la red verán estos datos.
+                Tú eliges cómo contactarte. Estos datos solo los verá la red.
               </FieldDescription>
               <FieldGroup>
                 <Field data-invalid={!!errors.contactEmail || undefined}>
@@ -627,7 +655,7 @@ export function ProfileEditor() {
                     }
                   />
                   <FieldLabel htmlFor="published" className="font-normal">
-                    Publicar en el directorio
+                    Quiero aparecer en el directorio
                   </FieldLabel>
                 </Field>
                 <Field

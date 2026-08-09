@@ -169,14 +169,14 @@ function ProfileDetail({ profile }: { profile: Profile }) {
       </dl>
 
       <div className="border-b border-border pb-7">
-        <h3 className="font-semibold">Puede ayudarte con</h3>
+        <h3 className="font-semibold">Puedes preguntarle sobre</h3>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           {profile.helpWith}
         </p>
       </div>
 
       <div>
-        <h3 className="font-semibold">Conecta</h3>
+        <h3 className="font-semibold">¿Quieres conversar?</h3>
         <div className="mt-4 flex flex-col gap-2">
           <a
             href={`mailto:${profile.contactEmail}`}
@@ -269,7 +269,7 @@ export function DirectoryApp() {
         <SiteHeader />
         <main
           id="main-content"
-          className="mx-auto max-w-7xl px-4 py-10 sm:px-6"
+          className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12"
         >
           <Skeleton className="h-10 w-64" />
           <Skeleton className="mt-8 h-72 w-full" />
@@ -284,14 +284,14 @@ export function DirectoryApp() {
         <SiteHeader />
         <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
           <Alert>
-            <AlertTitle>Verifica tu cuenta</AlertTitle>
+            <AlertTitle>Esta parte de la red es privada</AlertTitle>
             <AlertDescription>
-              Usa tu correo @alumnos.utalca.cl o solicita revisión si eres
-              exalumno.
+              Confirma tu vínculo con ICC para conocer a las personas del
+              directorio y contactarlas.
             </AlertDescription>
           </Alert>
           <Link href="/verificacion" className={cn(buttonVariants(), "mt-6")}>
-            Ir a verificación
+            Verificar mi acceso
           </Link>
         </main>
       </div>
@@ -316,14 +316,18 @@ export function DirectoryApp() {
   return (
     <div className="min-h-svh">
       <SiteHeader />
-      <main id="main-content" className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <main
+        id="main-content"
+        className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12"
+      >
         <header className="flex flex-col justify-between gap-5 border-b border-border pb-8 sm:flex-row sm:items-end">
           <div>
             <h1 className="text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
               Personas
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Encuentra experiencia dentro de la comunidad.
+              Busca por experiencia, área o generación y encuentra con quién
+              conversar.
             </p>
           </div>
           <p className="text-sm font-medium" aria-live="polite">
@@ -332,10 +336,13 @@ export function DirectoryApp() {
         </header>
 
         {me.role === "alumni" && !me.profileComplete ? (
-          <Alert className="mt-6 rounded-none border-x-0 px-0">
-            <AlertTitle>Completa tu perfil</AlertTitle>
+          <Alert className="mt-6 border-primary/25 bg-accent/50">
+            <AlertTitle>Hazte visible para la red</AlertTitle>
             <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
-              <span>Ayuda a que la comunidad también pueda encontrarte.</span>
+              <span>
+                Completa tu perfil para que otras personas también puedan
+                encontrarte.
+              </span>
               <Link
                 href="/perfil"
                 className={buttonVariants({ variant: "outline", size: "sm" })}
@@ -381,13 +388,13 @@ export function DirectoryApp() {
                     <EmptyHeader>
                       <EmptyTitle>
                         {hasActiveFilters
-                          ? "Sin coincidencias"
-                          : "Aún no hay perfiles publicados"}
+                          ? "No encontramos a nadie con esos filtros"
+                          : "El directorio todavía está tomando forma"}
                       </EmptyTitle>
                       <EmptyDescription>
                         {hasActiveFilters
-                          ? "Prueba otro nombre o limpia los filtros."
-                          : "Los perfiles aparecerán aquí cuando alumni decidan compartirlos."}
+                          ? "Prueba con otro nombre, área o generación."
+                          : "Los perfiles aparecerán a medida que alumni decidan sumarse."}
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>
@@ -468,7 +475,8 @@ export function DirectoryApp() {
               <ProfileDetail profile={selected} />
             ) : (
               <p className="text-sm text-muted-foreground">
-                Selecciona un perfil para ver el detalle.
+                Elige una persona para conocer su experiencia y cómo
+                contactarla.
               </p>
             )}
           </aside>

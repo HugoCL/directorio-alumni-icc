@@ -35,8 +35,8 @@ function isCurrent(pathname: string, href: string) {
 function desktopLinkClass(active: boolean) {
   return cn(
     buttonVariants({ variant: "ghost", size: "sm" }),
-    "h-11 rounded-none border-b-2 border-transparent px-3 text-[0.9375rem] text-brand-ink hover:bg-secondary",
-    active && "border-brand-teal bg-transparent font-semibold"
+    "h-10 rounded-lg px-3 text-[0.9375rem] text-brand-ink hover:bg-secondary",
+    active && "bg-accent font-semibold text-brand-ink"
   )
 }
 
@@ -70,7 +70,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
         <div className="mx-auto grid h-[68px] max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr]">
           <Link
             href="/"
-            className="flex min-h-11 min-w-0 items-center gap-3 rounded-sm font-semibold tracking-[-0.02em]"
+            className="flex min-h-11 min-w-0 items-center gap-3 rounded-lg font-semibold tracking-[-0.02em]"
             aria-label="Red Alumni ICC, inicio"
           >
             <Image
@@ -135,7 +135,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
                 href="/sign-up"
                 className={cn(
                   buttonVariants(),
-                  "h-11 rounded-md bg-brand-ink px-4 text-white hover:bg-brand-ink/85"
+                  "h-11 rounded-lg bg-brand-ink px-4 text-white hover:bg-brand-ink/85"
                 )}
               >
                 Verificar cuenta
@@ -149,7 +149,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
                 aria-label="Abrir menú"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "icon" }),
-                  "size-11 rounded-md border-brand-ink/20 bg-white"
+                  "size-11 rounded-lg border-brand-ink/20 bg-white"
                 )}
               >
                 <MenuIcon aria-hidden="true" />
@@ -174,7 +174,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
                     aria-label="Cerrar menú"
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-11 rounded-md"
+                      "size-11 rounded-lg"
                     )}
                   >
                     <XIcon aria-hidden="true" />

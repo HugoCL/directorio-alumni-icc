@@ -66,9 +66,13 @@ export default function VerificationPage() {
     setSaving(true)
     try {
       await submit({ name, generation, linkedinUrl })
-      toast.success("Solicitud enviada")
+      toast.success("Recibimos tu solicitud")
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo enviar")
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No pudimos enviar la solicitud. Intenta nuevamente."
+      )
     } finally {
       setSaving(false)
     }
@@ -101,23 +105,26 @@ export default function VerificationPage() {
         className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-12"
       >
         <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance">
-          Confirma que eres parte de la carrera
+          Una última comprobación y estás dentro
         </h1>
         <p className="mt-3 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Los correos @alumnos.utalca.cl se aprueban automáticamente. Si eres
-          exalumno, revisaremos estos antecedentes.
+          Si aún usas tu correo @alumnos.utalca.cl, el acceso es inmediato. Si
+          egresaste, cuéntanos quién eres y revisaremos tu solicitud.
         </p>
 
         {request?.status === "approved" ? (
           <Alert className="mt-8">
             <AlertTitle>Cuenta aprobada</AlertTitle>
-            <AlertDescription>Preparando tu acceso…</AlertDescription>
+            <AlertDescription>
+              Todo listo. Te estamos llevando a tu perfil…
+            </AlertDescription>
           </Alert>
         ) : request?.status === "pending" ? (
           <Alert className="mt-8">
             <AlertTitle>Solicitud en revisión</AlertTitle>
             <AlertDescription>
-              Te enviaremos el resultado a {request.email}.
+              Ya tenemos tus datos. Te avisaremos a {request.email} apenas
+              terminemos de revisarlos.
             </AlertDescription>
           </Alert>
         ) : request?.status === "rejected" && !request.notifiedAt ? (
@@ -197,8 +204,7 @@ export default function VerificationPage() {
                     onChange={(event) => setLinkedinUrl(event.target.value)}
                   />
                   <FieldDescription>
-                    Lo usaremos únicamente para validar tu vínculo con la
-                    carrera.
+                    Solo lo usaremos para confirmar tu vínculo con ICC.
                   </FieldDescription>
                 </Field>
               </FieldGroup>
@@ -210,8 +216,8 @@ export default function VerificationPage() {
                 {saving
                   ? "Enviando…"
                   : request
-                    ? "Reenviar solicitud"
-                    : "Solicitar revisión"}
+                    ? "Enviar datos corregidos"
+                    : "Enviar solicitud"}
               </Button>
             </form>
           </>

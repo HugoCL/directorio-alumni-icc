@@ -11,6 +11,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.6.0
         version: 1.6.0(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@clerk/localizations':
+        specifier: ^4.13.4
+        version: 4.13.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@clerk/nextjs':
         specifier: ^7.5.16
         version: 7.5.16(next@16.2.6(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

@@ -1,7 +1,9 @@
 import { ClerkProvider } from "@clerk/nextjs"
+import { esMX } from "@clerk/localizations"
 import { shadcn } from "@clerk/ui/themes"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { SkipLink } from "@/components/skip-link"
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider"
 import { SessionBootstrap } from "@/components/providers/session-bootstrap"
 import { Toaster } from "@/components/ui/sonner"
@@ -13,13 +15,47 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
+const clerkLocalization = {
+  ...esMX,
+  formFieldAction__forgotPassword: "¿Olvidaste tu contraseña?",
+  formFieldInputPlaceholder__emailAddress: "tu-correo@ejemplo.com",
+  formFieldInputPlaceholder__password: "Escribe tu contraseña",
+  formFieldInputPlaceholder__signUpPassword: "Crea una contraseña",
+  identityPreviewEditButton__emailAddress: "Cambiar correo",
+  signIn: {
+    ...esMX.signIn,
+    start: {
+      ...esMX.signIn?.start,
+      actionLink: "Crear cuenta",
+      actionText: "¿Primera vez por aquí?",
+      subtitle: "Usa el correo con el que te registraste.",
+    },
+    emailCode: {
+      ...esMX.signIn?.emailCode,
+      formTitle: "Código de verificación",
+      subtitle: "Escribe el código que enviamos para entrar.",
+      title: "Revisa tu correo",
+    },
+  },
+  signUp: {
+    ...esMX.signUp,
+    start: {
+      ...esMX.signUp?.start,
+      actionLink: "Entrar",
+      actionText: "¿Ya tienes una cuenta?",
+      subtitle: "Crea tu acceso a la red de ICC.",
+    },
+  },
+}
+
 export const metadata: Metadata = {
   title: {
     default: "Red Alumni ICC",
     template: "%s · Red Alumni ICC",
   },
   description:
-    "Directorio privado para que estudiantes de la carrera contacten a alumni verificados.",
+    "La red privada de ICC para encontrar experiencia, compartir oportunidades y mantener el contacto.",
+  icons: { icon: "/icc-logo.png" },
 }
 
 export default function RootLayout({
@@ -30,13 +66,9 @@ export default function RootLayout({
   return (
     <html lang="es" className={inter.variable}>
       <body className="icc-theme min-h-svh bg-background text-foreground antialiased">
-        <a
-          href="#main-content"
-          className="fixed top-3 left-3 z-[60] -translate-y-24 bg-brand-ink px-4 py-3 font-semibold text-white focus:translate-y-0"
-        >
-          Saltar al contenido principal
-        </a>
+        <SkipLink />
         <ClerkProvider
+          localization={clerkLocalization}
           appearance={{
             theme: shadcn,
             variables: {
@@ -45,7 +77,7 @@ export default function RootLayout({
               colorBackground: "#FFFFFF",
               colorInput: "#F2F4F3",
               colorInputForeground: "#050403",
-              borderRadius: "0.375rem",
+              borderRadius: "0.625rem",
               fontFamily: "var(--font-inter)",
             },
           }}

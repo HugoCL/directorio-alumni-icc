@@ -165,7 +165,7 @@ function JobDetail({
             rel="noreferrer"
             className={cn(
               buttonVariants({ size: "lg" }),
-              "min-h-11 rounded-sm"
+              "min-h-11 rounded-lg"
             )}
           >
             Postular en el sitio
@@ -177,7 +177,7 @@ function JobDetail({
             href={`mailto:${job.contactEmail}`}
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
-              "min-h-11 rounded-sm"
+              "min-h-11 rounded-lg"
             )}
           >
             <MailIcon data-icon="inline-start" />
@@ -189,7 +189,7 @@ function JobDetail({
             type="button"
             variant="destructive"
             size="lg"
-            className="min-h-11 rounded-sm"
+            className="min-h-11 rounded-lg"
             disabled={closing}
             onClick={() => onClose(job._id)}
           >
@@ -244,10 +244,14 @@ function JobForm({
         contactEmail: contactEmail || undefined,
       })
       formElement.reset()
-      toast.success("Oportunidad publicada")
+      toast.success("La oportunidad ya está en la red")
       onPublished(jobId)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "No se pudo publicar")
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "No pudimos publicar la oportunidad. Intenta nuevamente."
+      )
     } finally {
       setPublishing(false)
     }
@@ -261,17 +265,17 @@ function JobForm({
     >
       <FieldSet className="relative gap-5">
         <FieldLegend className="mb-0 pr-14">
-          Publicar una oportunidad
+          Compartir una oportunidad
         </FieldLegend>
         <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-          Comparte un cargo o práctica vigente. La publicación quedará visible
-          para los miembros verificados.
+          Publica solo vacantes vigentes y agrega lo necesario para que alguien
+          pueda decidir si le interesa y cómo postular.
         </p>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="absolute top-0 right-0 size-11 rounded-sm"
+          className="absolute top-0 right-0 size-11 rounded-lg"
           onClick={onCancel}
           aria-label="Cerrar formulario"
         >
@@ -279,7 +283,7 @@ function JobForm({
         </Button>
 
         {error ? (
-          <Alert variant="destructive" className="rounded-sm">
+          <Alert variant="destructive" className="rounded-lg">
             <AlertTitle>No se pudo publicar</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -292,7 +296,7 @@ function JobForm({
               <Select name="kind" items={formKindItems} defaultValue="job">
                 <SelectTrigger
                   id="job-kind"
-                  className="h-11 w-full rounded-sm border-border bg-background"
+                  className="h-11 w-full rounded-lg border-border bg-background"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -302,7 +306,7 @@ function JobForm({
                       <SelectItem
                         key={item.value}
                         value={item.value}
-                        className="min-h-11 rounded-sm"
+                        className="min-h-11 rounded-lg"
                       >
                         {item.label}
                       </SelectItem>
@@ -316,7 +320,7 @@ function JobForm({
               <Select name="mode" items={formModeItems} defaultValue="remote">
                 <SelectTrigger
                   id="job-mode"
-                  className="h-11 w-full rounded-sm border-border bg-background"
+                  className="h-11 w-full rounded-lg border-border bg-background"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -326,7 +330,7 @@ function JobForm({
                       <SelectItem
                         key={item.value}
                         value={item.value}
-                        className="min-h-11 rounded-sm"
+                        className="min-h-11 rounded-lg"
                       >
                         {item.label}
                       </SelectItem>
@@ -348,7 +352,7 @@ function JobForm({
                 minLength={3}
                 maxLength={120}
                 placeholder="Ej: Frontend Engineer"
-                className="h-11 rounded-sm border-border bg-background"
+                className="h-11 rounded-lg border-border bg-background"
               />
             </Field>
             <Field>
@@ -360,7 +364,7 @@ function JobForm({
                 minLength={2}
                 maxLength={120}
                 placeholder="Ej: Buk"
-                className="h-11 rounded-sm border-border bg-background"
+                className="h-11 rounded-lg border-border bg-background"
               />
             </Field>
           </div>
@@ -374,7 +378,7 @@ function JobForm({
               minLength={2}
               maxLength={120}
               placeholder="Ej: Santiago, Chile"
-              className="h-11 rounded-sm border-border bg-background"
+              className="h-11 rounded-lg border-border bg-background"
             />
           </Field>
 
@@ -387,8 +391,8 @@ function JobForm({
               minLength={20}
               maxLength={3000}
               rows={7}
-              placeholder="Describe el rol, sus responsabilidades y lo que debería saber quien postule."
-              className="min-h-40 rounded-sm border-border bg-background"
+              placeholder="Cuenta qué hará la persona, qué experiencia buscan y cualquier dato que ayude a decidir si vale la pena postular."
+              className="min-h-40 rounded-lg border-border bg-background"
             />
           </Field>
 
@@ -401,7 +405,7 @@ function JobForm({
                 type="url"
                 maxLength={2048}
                 placeholder="https://…"
-                className="h-11 rounded-sm border-border bg-background"
+                className="h-11 rounded-lg border-border bg-background"
                 aria-invalid={applicationInvalid}
                 onChange={() => setApplicationInvalid(false)}
               />
@@ -414,7 +418,7 @@ function JobForm({
                 type="email"
                 maxLength={254}
                 placeholder="talento@empresa.cl"
-                className="h-11 rounded-sm border-border bg-background"
+                className="h-11 rounded-lg border-border bg-background"
                 aria-invalid={applicationInvalid}
                 onChange={() => setApplicationInvalid(false)}
               />
@@ -432,7 +436,7 @@ function JobForm({
             type="button"
             variant="outline"
             size="lg"
-            className="min-h-11 rounded-sm"
+            className="min-h-11 rounded-lg"
             onClick={onCancel}
           >
             Cancelar
@@ -440,7 +444,7 @@ function JobForm({
           <Button
             type="submit"
             size="lg"
-            className="min-h-11 rounded-sm"
+            className="min-h-11 rounded-lg"
             disabled={publishing}
           >
             {publishing ? (
@@ -449,7 +453,7 @@ function JobForm({
                 className="animate-spin"
               />
             ) : null}
-            {publishing ? "Publicando…" : "Publicar oportunidad"}
+            {publishing ? "Publicando…" : "Compartir con la red"}
           </Button>
         </div>
       </FieldSet>
@@ -561,7 +565,7 @@ export function JobBoard() {
       await closeJob({ jobId })
       setMobileOpen(false)
       setSelectedId(null)
-      toast.success("Publicación cerrada")
+      toast.success("La oportunidad ya no aparece en el tablero")
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : "No se pudo cerrar")
     } finally {
@@ -575,13 +579,13 @@ export function JobBoard() {
         <SiteHeader />
         <main
           id="main-content"
-          className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
+          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12"
         >
-          <Skeleton className="h-12 w-72 rounded-sm" />
-          <Skeleton className="mt-8 h-12 w-full rounded-sm" />
+          <Skeleton className="h-12 w-72 rounded-lg" />
+          <Skeleton className="mt-8 h-12 w-full rounded-lg" />
           <div className="mt-6 grid gap-8 lg:grid-cols-2">
-            <Skeleton className="h-96 rounded-sm" />
-            <Skeleton className="h-80 rounded-sm" />
+            <Skeleton className="h-96 rounded-lg" />
+            <Skeleton className="h-80 rounded-lg" />
           </div>
         </main>
       </div>
@@ -594,20 +598,20 @@ export function JobBoard() {
         <SiteHeader />
         <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
           <Alert>
-            <AlertTitle>Verifica tu cuenta</AlertTitle>
+            <AlertTitle>Esta parte de la red es privada</AlertTitle>
             <AlertDescription>
-              Solo los miembros verificados pueden revisar oportunidades de la
-              red.
+              Confirma tu vínculo con ICC para revisar empleos y prácticas
+              compartidos por la red.
             </AlertDescription>
           </Alert>
           <Link
             href="/verificacion"
             className={cn(
               buttonVariants({ size: "lg" }),
-              "mt-6 min-h-11 rounded-sm"
+              "mt-6 min-h-11 rounded-lg"
             )}
           >
-            Ir a verificación
+            Verificar mi acceso
           </Link>
         </main>
       </div>
@@ -619,7 +623,7 @@ export function JobBoard() {
       <SiteHeader />
       <main
         id="main-content"
-        className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10"
+        className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12"
       >
         <header className="flex flex-col gap-6 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -627,14 +631,14 @@ export function JobBoard() {
               Oportunidades
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-              Empleos y prácticas compartidos por la comunidad.
+              Empleos y prácticas que alguien de ICC quiso recomendar a la red.
             </p>
           </div>
           {canPost ? (
             <Button
               type="button"
               size="lg"
-              className="min-h-11 w-full rounded-sm sm:w-auto"
+              className="min-h-11 w-full rounded-lg sm:w-auto"
               aria-expanded={formOpen}
               aria-controls="publish-job"
               onClick={() => {
@@ -673,7 +677,7 @@ export function JobBoard() {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar cargo o empresa"
-                  className="h-11 rounded-sm border-border bg-background pl-10"
+                  className="h-11 rounded-lg border-border bg-background pl-10"
                 />
               </label>
               <Select
@@ -684,7 +688,7 @@ export function JobBoard() {
                 }
               >
                 <SelectTrigger
-                  className="h-11 w-full rounded-sm border-border bg-background"
+                  className="h-11 w-full rounded-lg border-border bg-background"
                   aria-label="Filtrar por tipo"
                 >
                   <SelectValue />
@@ -695,7 +699,7 @@ export function JobBoard() {
                       <SelectItem
                         key={item.value}
                         value={item.value}
-                        className="min-h-11 rounded-sm"
+                        className="min-h-11 rounded-lg"
                       >
                         {item.label}
                       </SelectItem>
@@ -711,7 +715,7 @@ export function JobBoard() {
                 }
               >
                 <SelectTrigger
-                  className="h-11 w-full rounded-sm border-border bg-background"
+                  className="h-11 w-full rounded-lg border-border bg-background"
                   aria-label="Filtrar por modalidad"
                 >
                   <SelectValue />
@@ -722,7 +726,7 @@ export function JobBoard() {
                       <SelectItem
                         key={item.value}
                         value={item.value}
-                        className="min-h-11 rounded-sm"
+                        className="min-h-11 rounded-lg"
                       >
                         {item.label}
                       </SelectItem>
@@ -747,7 +751,7 @@ export function JobBoard() {
               {results === undefined ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <li key={index} className="px-3 py-4">
-                    <Skeleton className="h-12 w-full rounded-sm" />
+                    <Skeleton className="h-12 w-full rounded-lg" />
                   </li>
                 ))
               ) : visibleJobs.length === 0 ? (
@@ -759,13 +763,13 @@ export function JobBoard() {
                         !search &&
                         kind === "all" &&
                         mode === "all"
-                          ? "Todavía no hay oportunidades"
-                          : "No hay coincidencias"}
+                          ? "Aún no hay oportunidades publicadas"
+                          : "No encontramos oportunidades con esos filtros"}
                       </EmptyTitle>
                       <EmptyDescription>
                         {canPost && results.length === 0
-                          ? "Publica la primera oportunidad para activar esta bolsa laboral."
-                          : "Prueba otra búsqueda o cambia los filtros."}
+                          ? "¿Viste una vacante que vale la pena? Compártela con la red."
+                          : "Prueba otro cargo, empresa o modalidad."}
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>
@@ -799,8 +803,8 @@ export function JobBoard() {
               />
             ) : (
               <div className="pt-10 text-sm leading-6 text-muted-foreground">
-                Selecciona una oportunidad para revisar el detalle y la vía de
-                postulación.
+                Elige una oportunidad para revisar los detalles y saber cómo
+                postular.
               </div>
             )}
           </aside>
@@ -816,7 +820,7 @@ export function JobBoard() {
           <SheetClose
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
-              "absolute top-3 right-3 size-11 rounded-sm"
+              "absolute top-3 right-3 size-11 rounded-lg"
             )}
           >
             <XIcon />

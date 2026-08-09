@@ -31,16 +31,16 @@ const directoryPreview = [
 
 const steps = [
   {
-    title: "Verifica tu cuenta",
-    body: "Entra con tu correo institucional o solicita acceso como alumni.",
+    title: "Confirma tu vínculo",
+    body: "Con correo institucional entras al instante. Si egresaste, revisamos tu solicitud.",
   },
   {
-    title: "Completa tu perfil",
-    body: "Cuenta en qué trabajas y en qué temas puedes orientar a la red.",
+    title: "Cuéntanos en qué andas",
+    body: "Comparte tu experiencia y los temas en los que te gustaría dar una mano.",
   },
   {
-    title: "Conecta y participa",
-    body: "Encuentra personas, comparte oportunidades y abre conversaciones.",
+    title: "Vuelve a la conversación",
+    body: "Encuentra a la persona indicada, comparte una oportunidad o retoma el contacto.",
   },
 ]
 
@@ -49,11 +49,9 @@ function NetworkPreview() {
     <div className="border-y border-foreground">
       <div className="flex items-end justify-between gap-4 border-b border-border py-4">
         <div>
-          <p className="text-sm font-semibold text-primary">
-            La red por dentro
-          </p>
+          <p className="text-sm font-semibold text-primary">Empieza por aquí</p>
           <h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em]">
-            Dos lugares para empezar
+            Lo que puedes hacer en la red
           </h2>
         </div>
         <span className="text-sm text-muted-foreground">Acceso privado</span>
@@ -66,8 +64,8 @@ function NetworkPreview() {
         <div>
           <p className="text-xl font-semibold">Personas</p>
           <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Busca por área, generación o experiencia y encuentra a quién
-            preguntarle.
+            Busca por área o generación y encuentra a alguien que ya recorrió
+            ese camino.
           </p>
         </div>
         <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
@@ -80,7 +78,8 @@ function NetworkPreview() {
         <div>
           <p className="text-xl font-semibold">Oportunidades</p>
           <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Revisa empleos y prácticas compartidos por alumni de la carrera.
+            Descubre empleos y prácticas que alguien de la carrera quiso
+            compartir contigo.
           </p>
         </div>
         <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
@@ -104,13 +103,13 @@ export default async function HomePage() {
           <div className="mx-auto grid min-h-[calc(88svh-4.5rem)] max-w-7xl items-center gap-14 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,0.92fr)_minmax(26rem,0.78fr)] lg:gap-20">
             <div className="max-w-2xl">
               <h1 className="text-[clamp(3rem,7vw,5.8rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance">
-                La red de la carrera,
+                La carrera nos conectó.
                 <br />
-                en movimiento.
+                La red nos mantiene cerca.
               </h1>
               <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-                Encuentra personas, comparte oportunidades y mantén cerca a la
-                comunidad que empezó aquí.
+                Encuentra a quien ya recorrió ese camino, comparte una
+                oportunidad o vuelve a conversar con tu generación.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link
@@ -142,11 +141,11 @@ export default async function HomePage() {
         <section id="para-la-red" className="bg-foreground text-background">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
             <h2 className="max-w-5xl text-4xl leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-6xl">
-              Personas, experiencia y oportunidades en un solo lugar.
+              Lo que sabemos vale más cuando circula.
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
-              Una red privada para que el conocimiento y las oportunidades
-              circulen entre distintas generaciones.
+              Este es el punto de encuentro entre quienes están comenzando,
+              quienes llevan años de experiencia y quienes quieren aportar.
             </p>
           </div>
         </section>
@@ -157,11 +156,11 @@ export default async function HomePage() {
               <div className="max-w-md">
                 <p className="text-sm font-semibold text-primary">Directorio</p>
                 <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  Encuentra experiencia dentro de la comunidad.
+                  Encuentra a la persona indicada para esa pregunta.
                 </h3>
                 <p className="mt-5 leading-relaxed text-muted-foreground">
-                  Explora perfiles por área y generación. Cada persona decide
-                  qué experiencia y formas de contacto compartir.
+                  Busca por área y generación. Cada persona cuenta en qué puede
+                  ayudarte y decide cómo prefiere que la contacten.
                 </p>
                 <Link
                   href="/directorio"
@@ -205,11 +204,11 @@ export default async function HomePage() {
                   Oportunidades
                 </p>
                 <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  Abre la próxima puerta para alguien de la carrera.
+                  Comparte una oportunidad que valga la pena.
                 </h3>
                 <p className="mt-5 leading-relaxed text-muted-foreground">
-                  Alumni comparten empleos y prácticas. Toda la comunidad
-                  verificada puede revisarlos y postular.
+                  Publica empleos y prácticas que recomendarías de verdad. La
+                  red verá la información y sabrá exactamente cómo postular.
                 </p>
                 <Link
                   href="/oportunidades"
@@ -248,11 +247,11 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <h2 className="max-w-xl text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-                Accede en tres pasos
+                Entrar es simple
               </h2>
               <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-                La verificación mantiene los perfiles y oportunidades dentro de
-                la comunidad.
+                La verificación toma unos minutos y mantiene este espacio entre
+                personas de la carrera.
               </p>
             </div>
 
@@ -287,10 +286,10 @@ export default async function HomePage() {
             <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <h2 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  La comunidad te espera.
+                  Tu próxima conversación puede empezar aquí.
                 </h2>
                 <p className="mt-3 text-background/70">
-                  Verifica tu cuenta y empieza a participar.
+                  Entra a la red y descubre con quién vale la pena hablar.
                 </p>
               </div>
               <Link
@@ -313,7 +312,7 @@ export default async function HomePage() {
           <div>
             <p className="text-lg font-semibold">Red Alumni ICC</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Un espacio privado para la comunidad.
+              Un punto de encuentro para quienes pasaron por ICC.
             </p>
           </div>
           <Link

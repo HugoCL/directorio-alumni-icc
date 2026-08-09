@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAction, useMutation, useQuery } from "convex/react"
+import { useAction, useConvexAuth, useMutation, useQuery } from "convex/react"
 import { ExternalLinkIcon } from "lucide-react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
@@ -29,6 +29,7 @@ type Decision = "approved" | "rejected"
 type Request = Doc<"verificationRequests">
 
 export function AdminVerifications() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth()
   const me = useQuery(api.users.me)
   const syncAdmin = useMutation(api.users.syncAdminRole)
   const requests = useQuery(
@@ -43,14 +44,18 @@ export function AdminVerifications() {
   const [rejectionReason, setRejectionReason] = useState("")
 
   useEffect(() => {
-    if (bootstrapped || me === undefined) return
+    if (bootstrapped || me === undefined || isAuthLoading) return
+    if (me?.role === "admin" || !isAuthenticated) {
+      setBootstrapped(true)
+      return
+    }
     void syncAdmin({}).finally(() => setBootstrapped(true))
-  }, [me, syncAdmin, bootstrapped])
+  }, [me, syncAdmin, bootstrapped, isAuthenticated, isAuthLoading])
 
   async function decide(request: Request, decision: Decision, reason?: string) {
     const rejectionReason = decision === "rejected" ? reason?.trim() : undefined
     if (decision === "rejected" && !rejectionReason) {
-      toast.error("Indica el motivo del rechazo")
+      toast.error("Cuéntale qué dato necesita corregir")
       return
     }
 
@@ -85,7 +90,7 @@ export function AdminVerifications() {
         <main
           id="main-content"
           aria-busy="true"
-          className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10"
+          className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12"
         >
           <Skeleton className="h-9 w-56" />
           <Skeleton className="mt-4 h-5 w-96 max-w-full" />
@@ -101,10 +106,10 @@ export function AdminVerifications() {
         <SiteHeader />
         <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
           <Alert>
-            <AlertTitle>Solo administradores</AlertTitle>
+            <AlertTitle>Necesitas permisos de administración</AlertTitle>
             <AlertDescription>
-              Asigna <code>{`{ "role": "admin" }`}</code> en el public metadata
-              de Clerk y recarga.
+              Esta sección está reservada para quienes revisan solicitudes de
+              acceso.
             </AlertDescription>
           </Alert>
         </main>
@@ -117,13 +122,14 @@ export function AdminVerifications() {
       <SiteHeader />
       <main
         id="main-content"
-        className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10"
+        className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12"
       >
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Verificaciones
+        <h1 className="font-heading text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+          Solicitudes de acceso
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Revisa antecedentes de exalumnos y notifica el resultado por correo.
+        <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+          Confirma que cada persona tenga un vínculo real con ICC. Al decidir,
+          le enviaremos el resultado por correo.
         </p>
 
         <section
@@ -137,9 +143,10 @@ export function AdminVerifications() {
           ) : requests.length === 0 ? (
             <Empty className="rounded-none border-0 py-14">
               <EmptyHeader>
-                <EmptyTitle>Sin solicitudes pendientes</EmptyTitle>
+                <EmptyTitle>Todo al día</EmptyTitle>
                 <EmptyDescription>
-                  Las nuevas solicitudes de alumni aparecerán aquí.
+                  Cuando alguien solicite acceso, aparecerá aquí para que la
+                  revises.
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
@@ -316,7 +323,7 @@ export function AdminVerifications() {
                                 onChange={(event) =>
                                   setRejectionReason(event.target.value)
                                 }
-                                placeholder="Explica qué antecedente debe corregir."
+                                placeholder="Por ejemplo: no pudimos confirmar tu generación o el perfil de LinkedIn no está disponible."
                               />
                               <FieldDescription>
                                 Este texto se incluirá en el correo al
