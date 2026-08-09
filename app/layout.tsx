@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s · Red Alumni ICC",
   },
   description:
-    "Directorio privado para que estudiantes de ICC contacten a alumni verificados.",
+    "Directorio privado para que estudiantes de la carrera contacten a alumni verificados.",
 }
 
 export default function RootLayout({

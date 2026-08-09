@@ -323,7 +323,7 @@ export function DirectoryApp() {
               Personas
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Encuentra experiencia dentro de la comunidad ICC.
+              Encuentra experiencia dentro de la comunidad.
             </p>
           </div>
           <p className="text-sm font-medium" aria-live="polite">

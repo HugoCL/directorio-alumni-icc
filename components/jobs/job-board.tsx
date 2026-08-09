@@ -627,7 +627,7 @@ export function JobBoard() {
               Oportunidades
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-              Empleos y prácticas compartidos por la comunidad ICC.
+              Empleos y prácticas compartidos por la comunidad.
             </p>
           </div>
           {canPost ? (

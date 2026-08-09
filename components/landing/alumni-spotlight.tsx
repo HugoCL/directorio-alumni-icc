@@ -77,7 +77,7 @@ export function AlumniSpotlight({ profiles }: { profiles: FeaturedAlumni[] }) {
         <div>
           <p className="text-sm font-semibold text-primary">Conoce a la red</p>
           <h2 className="mt-1 text-xl font-semibold tracking-[-0.02em]">
-            Alumni ICC
+            Alumni de la carrera
           </h2>
         </div>
         <p className="text-sm text-muted-foreground">

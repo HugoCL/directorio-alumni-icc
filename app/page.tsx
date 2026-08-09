@@ -80,7 +80,7 @@ function NetworkPreview() {
         <div>
           <p className="text-xl font-semibold">Oportunidades</p>
           <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Revisa empleos y prácticas compartidos directamente por alumni ICC.
+            Revisa empleos y prácticas compartidos por alumni de la carrera.
           </p>
         </div>
         <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
@@ -104,7 +104,7 @@ export default async function HomePage() {
           <div className="mx-auto grid min-h-[calc(88svh-4.5rem)] max-w-7xl items-center gap-14 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,0.92fr)_minmax(26rem,0.78fr)] lg:gap-20">
             <div className="max-w-2xl">
               <h1 className="text-[clamp(3rem,7vw,5.8rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance">
-                La red ICC,
+                La red de la carrera,
                 <br />
                 en movimiento.
               </h1>
@@ -146,7 +146,7 @@ export default async function HomePage() {
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
               Una red privada para que el conocimiento y las oportunidades
-              circulen entre generaciones de ICC.
+              circulen entre distintas generaciones.
             </p>
           </div>
         </section>
@@ -205,7 +205,7 @@ export default async function HomePage() {
                   Oportunidades
                 </p>
                 <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  Abre la próxima puerta para alguien de ICC.
+                  Abre la próxima puerta para alguien de la carrera.
                 </h3>
                 <p className="mt-5 leading-relaxed text-muted-foreground">
                   Alumni comparten empleos y prácticas. Toda la comunidad
@@ -287,7 +287,7 @@ export default async function HomePage() {
             <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <h2 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  La comunidad ICC te espera.
+                  La comunidad te espera.
                 </h2>
                 <p className="mt-3 text-background/70">
                   Verifica tu cuenta y empieza a participar.
@@ -313,7 +313,7 @@ export default async function HomePage() {
           <div>
             <p className="text-lg font-semibold">Red Alumni ICC</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Una red privada para la comunidad ICC.
+              Un espacio privado para la comunidad.
             </p>
           </div>
           <Link

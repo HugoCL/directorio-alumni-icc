@@ -22,11 +22,11 @@ export default function SignUpPage() {
                 id="sign-up-statement"
                 className="max-w-lg text-3xl leading-[1.05] font-semibold tracking-[-0.035em] sm:text-4xl lg:text-5xl"
               >
-                Tu experiencia también mueve la red ICC.
+                Tu experiencia también mueve la red.
               </h1>
               <p className="mt-5 max-w-md text-base leading-relaxed text-white/72 sm:text-lg">
-                Crea tu acceso para conectar con personas de ICC, compartir lo
-                que sabes y mantenerte cerca de la comunidad.
+                Crea tu acceso para conectar con personas de la carrera,
+                compartir lo que sabes y mantenerte cerca de la comunidad.
               </p>
             </div>
           </div>
