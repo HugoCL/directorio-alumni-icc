@@ -9,9 +9,16 @@ export const AREAS = [
 
 export type Area = (typeof AREAS)[number];
 
-export const GENERATIONS = Array.from({ length: 14 }, (_, i) =>
-  String(2013 + i),
-) as readonly string[];
+export const FIRST_GENERATION_YEAR = 1998;
+
+export function buildGenerations(endYear = new Date().getFullYear()) {
+  return Array.from(
+    { length: endYear - FIRST_GENERATION_YEAR + 1 },
+    (_, i) => String(FIRST_GENERATION_YEAR + i),
+  );
+}
+
+export const GENERATIONS = buildGenerations() as readonly string[];
 
 export function isArea(value: string): value is Area {
   return (AREAS as readonly string[]).includes(value);

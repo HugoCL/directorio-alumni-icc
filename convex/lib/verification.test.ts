@@ -44,9 +44,10 @@ test("clasifica únicamente correos estudiantiles verificados", () => {
   assert.equal(isVerifiedStudentEmail("ANA@ALUMNOS.UTALCA.CL", true), true)
   assert.equal(isVerifiedStudentEmail("ana@otroalumnos.utalca.cl", true), false)
   assert.equal(isVerifiedStudentEmail("ana@alumnos.utalca.cl", false), false)
+  assert.equal(isValidGeneration("1998"), true)
   assert.equal(isValidGeneration("2013"), true)
-  assert.equal(isValidGeneration("2026"), true)
-  assert.equal(isValidGeneration("2012"), false)
+  assert.equal(isValidGeneration(String(new Date().getFullYear())), true)
+  assert.equal(isValidGeneration("1997"), false)
 })
 
 test("acepta roles administrados por Clerk", () => {

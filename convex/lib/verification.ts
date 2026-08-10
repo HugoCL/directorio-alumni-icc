@@ -1,6 +1,10 @@
 const STUDENT_DOMAIN = "@alumnos.utalca.cl"
+const FIRST_GENERATION_YEAR = 1998
 const GENERATIONS = new Set(
-  Array.from({ length: 14 }, (_, index) => String(2013 + index))
+  Array.from(
+    { length: new Date().getFullYear() - FIRST_GENERATION_YEAR + 1 },
+    (_, index) => String(FIRST_GENERATION_YEAR + index),
+  ),
 )
 
 export function isStudentEmail(email: string | undefined): boolean {

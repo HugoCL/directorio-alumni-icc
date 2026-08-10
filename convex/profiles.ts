@@ -16,10 +16,7 @@ import {
   landingProfileValidator,
   profileValidator,
 } from "./lib/validators"
-
-const GENERATIONS = new Set(
-  Array.from({ length: 14 }, (_, i) => String(2013 + i))
-)
+import { isValidGeneration } from "./lib/verification"
 
 function normalizeLinkedIn(url: string | undefined): string | undefined {
   if (!url) return undefined
@@ -54,7 +51,7 @@ function validateProfileInput(args: {
   if (args.fullName.trim().length < 2) {
     throw new Error("El nombre debe tener al menos 2 caracteres")
   }
-  if (!GENERATIONS.has(args.generation)) {
+  if (!isValidGeneration(args.generation)) {
     throw new Error("Generación inválida")
   }
   if (args.helpWith.trim().length < 10) {
