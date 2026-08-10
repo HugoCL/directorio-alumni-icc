@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { useMutation, useQuery } from "convex/react"
+import { useAction, useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
 import { isStudentEmail } from "@/convex/lib/verification"
@@ -33,7 +33,7 @@ export default function VerificationPage() {
   const { user, isLoaded } = useUser()
   const me = useQuery(api.users.me)
   const request = useQuery(api.verifications.mine)
-  const ensureSession = useMutation(api.users.ensureSession)
+  const ensureSession = useAction(api.users.ensureSession)
   const submit = useMutation(api.verifications.submit)
   const [bootstrapped, setBootstrapped] = useState(false)
   const [name, setName] = useState("")

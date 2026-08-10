@@ -14,6 +14,24 @@ export function isVerifiedStudentEmail(
   return emailVerified === true && isStudentEmail(email)
 }
 
+export function getVerifiedStudentEmail(
+  emails: Array<{
+    emailAddress: string
+    verification?: { status: string } | null
+  }>
+): string | null {
+  return (
+    emails
+      .find(
+        (email) =>
+          email.verification?.status === "verified" &&
+          isStudentEmail(email.emailAddress)
+      )
+      ?.emailAddress.trim()
+      .toLowerCase() ?? null
+  )
+}
+
 export function roleFromIdentity(identity: {
   role?: unknown
   email?: string

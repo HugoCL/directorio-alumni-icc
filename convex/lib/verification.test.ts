@@ -1,12 +1,38 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 import {
+  getVerifiedStudentEmail,
   isStudentEmail,
   isValidGeneration,
   isVerifiedStudentEmail,
   roleAfterSessionSync,
   roleFromIdentity,
 } from "./verification.ts"
+
+test("obtiene únicamente un correo institucional verificado por Clerk", () => {
+  assert.equal(
+    getVerifiedStudentEmail([
+      {
+        emailAddress: "personal@example.com",
+        verification: { status: "verified" },
+      },
+      {
+        emailAddress: " ALUMNO@ALUMNOS.UTALCA.CL ",
+        verification: { status: "verified" },
+      },
+    ]),
+    "alumno@alumnos.utalca.cl"
+  )
+  assert.equal(
+    getVerifiedStudentEmail([
+      {
+        emailAddress: "alumno@alumnos.utalca.cl",
+        verification: { status: "unverified" },
+      },
+    ]),
+    null
+  )
+})
 
 test("reconoce correos estudiantiles aunque todavía no estén verificados", () => {
   assert.equal(isStudentEmail(" ANA@ALUMNOS.UTALCA.CL "), true)

@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useConvexAuth, useMutation } from "convex/react";
+import { useAction, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 /** Links Clerk session to Convex user (heals empty tokenIdentifier, promotes admin). */
 export function SessionBootstrap() {
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const ensureSession = useMutation(api.users.ensureSession);
+  const ensureSession = useAction(api.users.ensureSession);
   const ran = useRef(false);
 
   useEffect(() => {
