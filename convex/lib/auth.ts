@@ -30,12 +30,12 @@ export async function getCurrentUserOrNull(
     .withIndex("by_token", (q) =>
       q.eq("tokenIdentifier", identity.tokenIdentifier)
     )
-    .unique()
+    .first()
   if (!user) {
     user = await ctx.db
       .query("users")
       .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
-      .unique()
+      .first()
   }
 
   if (!user && identity.email) {
@@ -44,7 +44,7 @@ export async function getCurrentUserOrNull(
       .withIndex("by_email", (q) =>
         q.eq("email", normalizeEmail(identity.email!))
       )
-      .unique()
+      .first()
   }
 
   if (user?.role === "student" && roleFromIdentity(identity) !== "student") {

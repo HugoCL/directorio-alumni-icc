@@ -35,7 +35,6 @@ export default function VerificationPage() {
   const request = useQuery(api.verifications.mine)
   const ensureSession = useAction(api.users.ensureSession)
   const submit = useMutation(api.verifications.submit)
-  const [bootstrapped, setBootstrapped] = useState(false)
   const [name, setName] = useState("")
   const [generation, setGeneration] = useState(GENERATIONS.at(-1)!)
   const [linkedinUrl, setLinkedinUrl] = useState("")
@@ -46,11 +45,6 @@ export default function VerificationPage() {
   const [hydratedRequestId, setHydratedRequestId] = useState<string | null>(
     null
   )
-
-  useEffect(() => {
-    if (!isLoaded || !user || bootstrapped) return
-    void ensureSession({}).finally(() => setBootstrapped(true))
-  }, [isLoaded, user, bootstrapped, ensureSession])
 
   useEffect(() => {
     if (!request || hydratedRequestId === request._id) return
@@ -150,7 +144,7 @@ export default function VerificationPage() {
     }
   }
 
-  if (!bootstrapped || me === undefined || request === undefined) {
+  if (!isLoaded || me === undefined || request === undefined) {
     return (
       <AppPage width="narrow">
         <div aria-busy="true">
