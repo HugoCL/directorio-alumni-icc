@@ -69,7 +69,7 @@ un dominio remitente y configura las variables en Convex de producción:
 ```bash
 npx convex env set --prod RESEND_API_KEY re_...
 npx convex env set --prod RESEND_FROM "Red Alumni ICC <red@tu-dominio.cl>"
-npx convex env set --prod APP_URL https://directorio-alumni-icc.vercel.app
+npx convex env set --prod APP_URL https://directorioicc.online
 ```
 
 No guardes estos valores en archivos versionados. Resend notifica decisiones de

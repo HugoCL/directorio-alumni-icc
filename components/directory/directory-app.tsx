@@ -211,7 +211,7 @@ function ProfileDetail({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold">Cómo contactarla</h3>
+        <h3 className="text-sm font-semibold">Datos de contacto</h3>
         <div className="mt-3 flex flex-col gap-2">
           {profile.contactEmail ? (
             <a
