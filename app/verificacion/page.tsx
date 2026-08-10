@@ -92,6 +92,7 @@ export default function VerificationPage() {
       await user.update({ primaryEmailAddressId: institutionalEmail.id })
     }
     await user.reload()
+    await ensureSession({})
     window.location.reload()
   }
 
