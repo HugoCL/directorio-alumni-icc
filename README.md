@@ -41,6 +41,7 @@ NEXT_PUBLIC_CONVEX_URL=https://….convex.cloud
 
 ```bash
 npx convex env set CLERK_JWT_ISSUER_DOMAIN https://<instancia>.clerk.accounts.dev
+npx convex env set CLERK_PRODUCTION_JWT_ISSUER_DOMAIN https://clerk.<tu-dominio>
 ```
 
 4. Para `/admin`, asigna public metadata al usuario:
