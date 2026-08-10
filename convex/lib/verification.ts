@@ -31,6 +31,15 @@ export function roleFromIdentity(identity: {
     : null
 }
 
+export function roleAfterSessionSync(
+  currentRole: "admin" | "alumni" | "student",
+  clerkRole: "admin" | "alumni" | "student" | null
+) {
+  return currentRole === "alumni" && clerkRole === "student"
+    ? "alumni"
+    : (clerkRole ?? currentRole)
+}
+
 export function isValidGeneration(generation: string): boolean {
   return GENERATIONS.has(generation)
 }

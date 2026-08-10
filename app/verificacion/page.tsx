@@ -61,7 +61,7 @@ export default function VerificationPage() {
   }, [request, hydratedRequestId])
 
   useEffect(() => {
-    if (!me) return
+    if (!me || me.role === "student") return
     router.replace(me.role === "alumni" ? "/perfil" : "/directorio")
   }, [me, router])
 
@@ -161,20 +161,24 @@ export default function VerificationPage() {
     )
   }
 
-  if (me) return null
+  if (me && me.role !== "student") return null
+
+  const requestingAlumniRole = me?.role === "student"
 
   return (
     <AppPage width="narrow" className="sm:py-16">
       <h1 className="text-3xl leading-tight font-semibold text-balance sm:text-4xl">
-        Una comprobación rápida y estás dentro
+        {requestingAlumniRole
+          ? "Solicita tu cambio a alumni"
+          : "Una comprobación rápida y estás dentro"}
       </h1>
       <p className="mt-3 leading-relaxed text-muted-foreground">
-        Si todavía usas tu correo @alumnos.utalca.cl, tu cuenta se verifica
-        automáticamente. Si ya egresaste, cuéntanos quién eres y lo revisamos a
-        mano.
+        {requestingAlumniRole
+          ? "Si ya egresaste, cuéntanos quién eres y cambiaremos tu cuenta de estudiante a alumni después de revisarla."
+          : "Si todavía usas tu correo @alumnos.utalca.cl, tu cuenta se verifica automáticamente. Si ya egresaste, cuéntanos quién eres y lo revisamos a mano."}
       </p>
 
-      {institutionalEmail ? (
+      {institutionalEmail && !requestingAlumniRole ? (
         <Panel className="mt-8 p-6 sm:p-7">
           <h2 className="font-semibold">Verifica tu correo institucional</h2>
           <p className="mt-2 text-sm text-muted-foreground">

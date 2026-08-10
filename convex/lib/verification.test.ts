@@ -4,6 +4,7 @@ import {
   isStudentEmail,
   isValidGeneration,
   isVerifiedStudentEmail,
+  roleAfterSessionSync,
   roleFromIdentity,
 } from "./verification.ts"
 
@@ -31,4 +32,9 @@ test("acepta roles administrados por Clerk", () => {
     "student"
   )
   assert.equal(roleFromIdentity({ role: "otro" }), null)
+})
+
+test("no baja a student un alumni aprobado", () => {
+  assert.equal(roleAfterSessionSync("alumni", "student"), "alumni")
+  assert.equal(roleAfterSessionSync("student", "alumni"), "alumni")
 })

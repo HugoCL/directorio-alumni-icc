@@ -6,7 +6,7 @@ import {
   verificationRequestValidator,
   verificationStatusValidator,
 } from "./lib/validators"
-import { isValidGeneration, isVerifiedStudentEmail } from "./lib/verification"
+import { isValidGeneration } from "./lib/verification"
 
 function normalizeLinkedIn(value: string): string {
   try {
@@ -61,10 +61,6 @@ export const submit = mutation({
     if (!email || identity.emailVerified !== true) {
       throw new Error("Verifica tu correo en Clerk antes de continuar")
     }
-    if (isVerifiedStudentEmail(email, identity.emailVerified)) {
-      throw new Error("Tu correo institucional se verifica automáticamente")
-    }
-
     const existingUser = await ctx.db
       .query("users")
       .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
@@ -170,6 +166,8 @@ export const applyReview = internalMutation({
           email: request.email,
           name: request.name,
           role: existing.role === "admin" ? "admin" : "alumni",
+          profileComplete:
+            existing.role === "admin" ? existing.profileComplete : false,
           updatedAt: Date.now(),
         })
       } else {

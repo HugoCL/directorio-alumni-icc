@@ -10,6 +10,7 @@ import {
   roleFromIdentity,
 } from "./lib/auth"
 import { userValidator } from "./lib/validators"
+import { roleAfterSessionSync } from "./lib/verification"
 
 async function ensureSessionInternal(
   ctx: MutationCtx
@@ -24,9 +25,10 @@ async function ensureSessionInternal(
 
   if (user) {
     user = await healUserIdentity(ctx, user)
-    if (clerkRole && user.role !== clerkRole) {
+    const nextRole = roleAfterSessionSync(user.role, clerkRole)
+    if (user.role !== nextRole) {
       await ctx.db.patch(user._id, {
-        role: clerkRole,
+        role: nextRole,
         updatedAt: Date.now(),
       })
       user = (await ctx.db.get(user._id))!

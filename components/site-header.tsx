@@ -47,6 +47,9 @@ export function SiteHeader({ className }: { className?: string }) {
   const pathname = usePathname()
   const me = useQuery(api.users.me)
   const accountLinks = [
+    ...(me?.role === "student"
+      ? [{ href: "/verificacion", label: "Cambiar a alumni" }]
+      : []),
     ...(me?.role === "alumni" || me?.role === "admin"
       ? [{ href: "/perfil", label: "Mi perfil" }]
       : []),
@@ -105,7 +108,9 @@ export function SiteHeader({ className }: { className?: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                aria-current={isCurrent(pathname, item.href) ? "page" : undefined}
+                aria-current={
+                  isCurrent(pathname, item.href) ? "page" : undefined
+                }
                 className={desktopLinkClass(isCurrent(pathname, item.href))}
               >
                 {item.label}
