@@ -47,10 +47,6 @@ export async function getCurrentUserOrNull(
       .first()
   }
 
-  if (user?.role === "student" && roleFromIdentity(identity) !== "student") {
-    return null
-  }
-
   return user
 }
 
