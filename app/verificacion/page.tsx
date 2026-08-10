@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
+import * as Sentry from "@sentry/nextjs"
 import { useAction, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
@@ -66,6 +67,7 @@ export default function VerificationPage() {
       await submit({ name, generation, linkedinUrl })
       toast.success("Recibimos tus datos")
     } catch (error) {
+      Sentry.captureException(error)
       toast.error(
         error instanceof Error
           ? error.message
