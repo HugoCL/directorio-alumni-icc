@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs"
+import { AuthSidePanel } from "@/components/auth/auth-side-panel"
 import { SiteHeader } from "@/components/site-header"
 
 export default function SignUpPage() {
@@ -7,61 +8,25 @@ export default function SignUpPage() {
       <SiteHeader />
       <main
         id="main-content"
-        className="grid min-h-[calc(100svh-71px)] lg:grid-cols-[minmax(20rem,0.82fr)_minmax(28rem,1.18fr)]"
+        className="grid min-h-[calc(100svh-4rem)] lg:grid-cols-[minmax(20rem,0.82fr)_minmax(28rem,1.18fr)]"
       >
-        <section
-          aria-labelledby="sign-up-statement"
-          className="flex bg-brand-ink px-6 py-10 text-white sm:px-10 lg:px-14 lg:py-16"
-        >
-          <div className="mx-auto flex w-full max-w-xl flex-col justify-between">
-            <p className="text-sm font-semibold text-white/70">
-              Red Alumni ICC
-            </p>
-            <div className="mt-12 lg:mt-auto">
-              <h1
-                id="sign-up-statement"
-                className="max-w-lg text-3xl leading-[1.05] font-semibold tracking-[-0.035em] sm:text-4xl lg:text-5xl"
-              >
-                La carrera terminó. La comunidad sigue.
-              </h1>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-white/72 sm:text-lg">
-                Crea tu acceso para compartir lo que has aprendido, abrir
-                oportunidades y mantener cerca a la gente de ICC.
-              </p>
-            </div>
-          </div>
-        </section>
+        <AuthSidePanel mode="sign-up" />
 
         <section
           aria-label="Formulario de creación de cuenta"
           className="flex items-center justify-center bg-white px-4 py-10 sm:px-8 lg:px-12"
         >
-          <div className="w-full max-w-md">
-            <aside className="mb-6 rounded-xl border border-brand-teal/25 bg-brand-teal/5 p-4 text-sm leading-relaxed text-brand-ink">
-              <p className="font-semibold">¿Eres estudiante?</p>
-              <p className="mt-1">
-                Crea tu cuenta con tu correo <strong>@alumnos.utalca.cl</strong>{" "}
-                para verificarte automáticamente.
+          <div className="mx-auto flex w-full max-w-[25rem] flex-col gap-5">
+            <aside className="border-l-2 border-brand-teal px-4 py-1 text-sm leading-relaxed text-brand-ink">
+              <p className="font-semibold">Estudiantes actuales</p>
+              <p className="mt-1 text-brand-ink/80">
+                Usa tu correo <strong>@alumnos.utalca.cl</strong> para
+                verificarte automáticamente.
               </p>
-              <p className="mt-2 text-brand-ink/70">
-                Si ya creaste tu cuenta, agrégalo después desde el menú de
-                usuario: Administrar cuenta → Agregar correo electrónico.
+              <p className="mt-2 text-xs text-brand-ink/60">
+                ¿Ya tienes cuenta? Puedes agregarlo después en Administrar
+                cuenta → Agregar correo electrónico.
               </p>
-              <details className="mt-3 border-t border-brand-teal/20 pt-3">
-                <summary className="cursor-pointer font-semibold text-brand-teal">
-                  Ver tutorial
-                </summary>
-                <video
-                  controls
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="mt-3 w-full rounded-lg"
-                >
-                  <source src="/tutorial-verificacion.mp4" type="video/mp4" />
-                  Tu navegador no puede reproducir este video.
-                </video>
-              </details>
             </aside>
             <SignUp
               routing="path"
@@ -70,7 +35,7 @@ export default function SignUpPage() {
               forceRedirectUrl="/verificacion"
               appearance={{
                 elements: {
-                  rootBox: "w-full",
+                  rootBox: "mx-auto w-full",
                   cardBox: "w-full shadow-none",
                   card: "w-full border-0 bg-transparent shadow-none",
                 },

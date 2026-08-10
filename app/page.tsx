@@ -3,6 +3,7 @@ import Link from "next/link"
 import { fetchQuery } from "convex/nextjs"
 import { RiArrowRightLine } from "@remixicon/react"
 import { AlumniSpotlight } from "@/components/landing/alumni-spotlight"
+import { AudienceFeatures } from "@/components/landing/audience-features"
 import { SiteHeader } from "@/components/site-header"
 import { buttonVariants } from "@/components/ui/button"
 import { api } from "@/convex/_generated/api"
@@ -180,102 +181,10 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-[96rem] px-5 py-14 sm:px-8 sm:py-16">
-          <div className="flex flex-col gap-10 sm:gap-12">
-            <div className="grid items-center gap-6 md:grid-cols-2 md:gap-10 lg:gap-14">
-              <div className="max-w-md">
-                <h2 className="text-3xl font-semibold text-balance sm:text-[2.125rem]">
-                  Encuentra a la persona indicada para esa pregunta.
-                </h2>
-                <p className="mt-3 leading-relaxed text-muted-foreground">
-                  Busca por área y generación. Cada persona cuenta en qué puede
-                  ayudarte y elige cómo prefiere que la contacten.
-                </p>
-                <Link
-                  href="/directorio"
-                  className={cn(
-                    buttonVariants({ variant: "link" }),
-                    "mt-3 px-0"
-                  )}
-                >
-                  Explorar personas
-                  <RiArrowRightLine data-icon="inline-end" />
-                </Link>
-              </div>
-
-              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-                {directoryPreview.slice(0, 3).map((profile) => (
-                  <li
-                    key={profile.initials}
-                    className="flex items-center gap-4 px-5 py-3.5"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent font-heading text-sm font-semibold text-accent-foreground"
-                    >
-                      {profile.initials}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{profile.area}</p>
-                      <p className="truncate text-sm text-muted-foreground">
-                        Generación {profile.generation}
-                      </p>
-                    </div>
-                    <p className="hidden max-w-48 truncate text-sm text-muted-foreground sm:block">
-                      {profile.topic}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div
-              aria-hidden="true"
-              className="h-px bg-border/70"
-            />
-
-            <div className="grid items-center gap-6 md:grid-cols-2 md:gap-10 lg:gap-14">
-              <div className="max-w-md">
-                <h2 className="text-3xl leading-tight font-semibold text-balance sm:text-[2.125rem]">
-                  Comparte y postula a oportunidades de la red
-                </h2>
-                <p className="mt-3 leading-relaxed text-pretty text-muted-foreground">
-                  Publica empleos y prácticas que recomendarías de verdad. La
-                  red verá la información y sabrá exactamente cómo postular.
-                </p>
-                <Link
-                  href="/oportunidades"
-                  className={cn(
-                    buttonVariants({ variant: "link" }),
-                    "mt-3 px-0"
-                  )}
-                >
-                  Ver oportunidades
-                  <RiArrowRightLine data-icon="inline-end" />
-                </Link>
-              </div>
-
-              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-                {jobPreview.map((job) => (
-                  <li
-                    key={job.role}
-                    className="flex items-center justify-between gap-4 px-5 py-3.5"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{job.role}</p>
-                      <p className="truncate text-sm text-muted-foreground">
-                        {job.org}
-                      </p>
-                    </div>
-                    <p className="shrink-0 text-sm text-muted-foreground">
-                      {job.detail}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+        <AudienceFeatures
+          directoryPreview={directoryPreview}
+          jobPreview={jobPreview}
+        />
 
         <section className="border-t border-border bg-surface">
           <div className="mx-auto max-w-[96rem] px-5 py-20 sm:px-8 sm:py-24">
@@ -324,8 +233,8 @@ export default async function HomePage() {
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-[96rem] flex-col gap-8 px-5 py-10 sm:flex-row sm:items-end sm:justify-between sm:gap-12 sm:px-8">
-          <div className="flex items-center gap-3.5">
+        <div className="mx-auto flex max-w-[96rem] flex-col gap-6 px-5 py-10 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+          <div className="flex min-w-0 items-start gap-3.5 sm:items-center">
             <Link
               href="https://icc.utalca.cl"
               target="_blank"
@@ -338,18 +247,18 @@ export default async function HomePage() {
                 alt="Ingeniería Civil en Computación"
                 width={139}
                 height={132}
-                className="h-16 w-auto opacity-80 transition-opacity hover:opacity-100"
+                className="h-12 w-auto opacity-80 transition-opacity hover:opacity-100 sm:h-16"
               />
             </Link>
-            <div>
+            <div className="min-w-0">
               <p className="font-heading font-semibold">Comunidad ICC</p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-pretty text-muted-foreground">
                 Un punto de encuentro para toda la comunidad ICC.
               </p>
             </div>
           </div>
 
-          <div className="text-sm leading-relaxed text-muted-foreground sm:shrink-0 sm:text-right sm:whitespace-nowrap">
+          <div className="max-w-xl min-w-0 text-sm leading-relaxed text-pretty text-muted-foreground lg:max-w-md lg:text-right xl:max-w-none xl:whitespace-nowrap">
             <p>
               Creado por{" "}
               <Link
