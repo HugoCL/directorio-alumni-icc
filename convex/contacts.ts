@@ -23,7 +23,7 @@ export const prepare = internalMutation({
       .withIndex("by_clerk_user", (q) =>
         q.eq("clerkUserId", args.senderClerkUserId)
       )
-      .unique()
+      .first()
     if (!sender || sender.role !== "student") {
       throw new Error("Solo estudiantes verificados pueden enviar mensajes")
     }

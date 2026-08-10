@@ -20,29 +20,26 @@ import {
 async function ensureSessionInternal(
   ctx: MutationCtx,
   verifiedEmail?: string,
-  verifiedRole?: "admin" | "alumni" | "student"
+  verifiedRole?: "admin" | "alumni" | "student",
+  verifiedName?: string
 ): Promise<Doc<"users"> | null> {
   const identity = await getIdentity(ctx)
-  const clerkRole =
-    verifiedRole ??
-    roleFromIdentity(identity as unknown as Record<string, unknown>) ??
-    (verifiedEmail ? "student" : null)
-  const email = verifiedEmail
-    ? normalizeEmail(verifiedEmail)
-    : identity.email
-      ? normalizeEmail(identity.email)
-      : null
+  const clerkRole = verifiedRole ?? (verifiedEmail ? "student" : null)
+  const email = verifiedEmail ? normalizeEmail(verifiedEmail) : null
+  const name = verifiedName?.trim() || undefined
 
   let user = await getCurrentUserOrNull(ctx)
 
   if (user) {
     user = await healUserIdentity(ctx, user)
     const nextRole = roleAfterSessionSync(user.role, clerkRole)
-    if (user.role !== nextRole) {
-      await ctx.db.patch(user._id, {
-        role: nextRole,
-        updatedAt: Date.now(),
-      })
+    const patch: Partial<Doc<"users">> = {}
+    if (user.role !== nextRole) patch.role = nextRole
+    if (email && user.email !== email) patch.email = email
+    if (name && user.name !== name) patch.name = name
+    if (Object.keys(patch).length > 0) {
+      patch.updatedAt = Date.now()
+      await ctx.db.patch(user._id, patch)
       user = (await ctx.db.get(user._id))!
     }
     return user
@@ -60,7 +57,7 @@ async function ensureSessionInternal(
     tokenIdentifier: identity.tokenIdentifier,
     clerkUserId: identity.subject,
     email,
-    name: identity.name ?? email.split("@")[0]!,
+    name: name ?? email.split("@")[0]!,
     role: clerkRole,
     profileComplete: clerkRole !== "alumni",
     updatedAt: Date.now(),
@@ -84,13 +81,15 @@ export const ensureSessionFromClerk = internalMutation({
     verifiedRole: v.optional(
       v.union(v.literal("admin"), v.literal("alumni"), v.literal("student"))
     ),
+    verifiedName: v.optional(v.string()),
   },
   returns: v.union(userValidator, v.null()),
   handler: async (ctx, args) => {
     return await ensureSessionInternal(
       ctx,
       args.verifiedEmail,
-      args.verifiedRole
+      args.verifiedRole,
+      args.verifiedName
     )
   },
 })
@@ -116,6 +115,7 @@ export const ensureSession = action({
     return await ctx.runMutation(internal.users.ensureSessionFromClerk, {
       verifiedEmail,
       verifiedRole,
+      verifiedName: clerkUser.fullName ?? undefined,
     })
   },
 })

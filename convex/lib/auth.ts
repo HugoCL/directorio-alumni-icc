@@ -38,25 +38,15 @@ export async function getCurrentUserOrNull(
       .first()
   }
 
-  if (!user && identity.email) {
-    user = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) =>
-        q.eq("email", normalizeEmail(identity.email!))
-      )
-      .first()
-  }
-
   return user
 }
 
-/** Keep tokenIdentifier / clerkUserId in sync after a successful lookup. */
+/** Keep stable Clerk identifiers in sync after a successful lookup. */
 export async function healUserIdentity(
   ctx: MutationCtx,
   user: Doc<"users">
 ): Promise<Doc<"users">> {
   const identity = await getIdentity(ctx)
-  const email = identity.email ? normalizeEmail(identity.email) : user.email
   const patch: Partial<Doc<"users">> = {}
 
   if (user.tokenIdentifier !== identity.tokenIdentifier) {
@@ -64,12 +54,6 @@ export async function healUserIdentity(
   }
   if (user.clerkUserId !== identity.subject) {
     patch.clerkUserId = identity.subject
-  }
-  if (email && user.email !== email) {
-    patch.email = email
-  }
-  if (identity.name && user.name !== identity.name) {
-    patch.name = identity.name
   }
 
   if (Object.keys(patch).length === 0) {

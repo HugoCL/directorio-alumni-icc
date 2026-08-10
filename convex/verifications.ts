@@ -1,6 +1,8 @@
+import { createClerkClient } from "@clerk/backend"
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
-import { action, internalMutation, mutation, query } from "./_generated/server"
+import { action, internalMutation, query } from "./_generated/server"
+import type { Id } from "./_generated/dataModel"
 import {
   getCurrentUserOrNull,
   getIdentity,
@@ -11,7 +13,7 @@ import {
   verificationRequestValidator,
   verificationStatusValidator,
 } from "./lib/validators"
-import { isStudentEmail, isValidGeneration } from "./lib/verification"
+import { isValidGeneration } from "./lib/verification"
 
 function normalizeLinkedIn(value: string): string {
   try {
@@ -40,7 +42,7 @@ export const mine = query({
     return await ctx.db
       .query("verificationRequests")
       .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
-      .unique()
+      .first()
   },
 })
 
@@ -53,30 +55,51 @@ export const list = query({
   },
 })
 
-export const submit = mutation({
+export const submit = action({
   args: {
     name: v.string(),
     generation: v.string(),
     linkedinUrl: v.string(),
   },
   returns: v.id("verificationRequests"),
-  handler: async (ctx, args) => {
-    const identity = await getIdentity(ctx)
-    const existingUser = await getCurrentUserOrNull(ctx)
-    const hasVerifiedStudentAccount =
-      existingUser?.role === "student" && isStudentEmail(existingUser.email)
-    const email =
-      hasVerifiedStudentAccount
-        ? existingUser.email
-        : identity.email
-          ? normalizeEmail(identity.email)
-          : null
-    if (
-      !email ||
-      (!hasVerifiedStudentAccount && identity.emailVerified !== true)
-    ) {
+  handler: async (ctx, args): Promise<Id<"verificationRequests">> => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error("No autenticado")
+    const secretKey = process.env.CLERK_SECRET_KEY
+    if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
+    const clerkUser = await createClerkClient({ secretKey }).users.getUser(
+      identity.subject
+    )
+    const primaryEmail = clerkUser.primaryEmailAddress
+    const verifiedEmail =
+      (primaryEmail?.verification?.status === "verified"
+        ? primaryEmail.emailAddress
+        : clerkUser.emailAddresses.find(
+            (email) => email.verification?.status === "verified"
+          )?.emailAddress) ?? null
+    if (!verifiedEmail) {
       throw new Error("Verifica tu correo en Clerk antes de continuar")
     }
+
+    return await ctx.runMutation(internal.verifications.submitFromClerk, {
+      ...args,
+      verifiedEmail,
+    })
+  },
+})
+
+export const submitFromClerk = internalMutation({
+  args: {
+    name: v.string(),
+    generation: v.string(),
+    linkedinUrl: v.string(),
+    verifiedEmail: v.string(),
+  },
+  returns: v.id("verificationRequests"),
+  handler: async (ctx, args): Promise<Id<"verificationRequests">> => {
+    const identity = await getIdentity(ctx)
+    const existingUser = await getCurrentUserOrNull(ctx)
+    const email = normalizeEmail(args.verifiedEmail)
     if (existingUser?.role === "alumni" || existingUser?.role === "admin") {
       throw new Error("Tu cuenta ya está verificada")
     }
@@ -90,7 +113,7 @@ export const submit = mutation({
     const previous = await ctx.db
       .query("verificationRequests")
       .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
-      .unique()
+      .first()
 
     if (previous?.status === "pending") {
       throw new Error("Ya tienes una solicitud pendiente")
@@ -145,7 +168,7 @@ export const applyReview = internalMutation({
       .withIndex("by_clerk_user", (q) =>
         q.eq("clerkUserId", args.reviewerClerkUserId)
       )
-      .unique()
+      .first()
     if (!admin || admin.role !== "admin") {
       throw new Error("Se requiere acceso de administrador")
     }
@@ -166,22 +189,24 @@ export const applyReview = internalMutation({
     }
 
     if (args.decision === "approved") {
-      const existing = await ctx.db
+      const existingUsers = await ctx.db
         .query("users")
         .withIndex("by_clerk_user", (q) =>
           q.eq("clerkUserId", request.clerkUserId)
         )
-        .unique()
-      if (existing) {
-        await ctx.db.patch(existing._id, {
-          tokenIdentifier: request.tokenIdentifier,
-          email: request.email,
-          name: request.name,
-          role: existing.role === "admin" ? "admin" : "alumni",
-          profileComplete:
-            existing.role === "admin" ? existing.profileComplete : false,
-          updatedAt: Date.now(),
-        })
+        .collect()
+      if (existingUsers.length > 0) {
+        for (const existing of existingUsers) {
+          await ctx.db.patch(existing._id, {
+            tokenIdentifier: request.tokenIdentifier,
+            email: request.email,
+            name: request.name,
+            role: existing.role === "admin" ? "admin" : "alumni",
+            profileComplete:
+              existing.role === "admin" ? existing.profileComplete : false,
+            updatedAt: Date.now(),
+          })
+        }
       } else {
         await ctx.db.insert("users", {
           tokenIdentifier: request.tokenIdentifier,
@@ -243,9 +268,7 @@ export const review = action({
   returns: v.null(),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity || identity.role !== "admin") {
-      throw new Error("Se requiere acceso de administrador")
-    }
+    if (!identity) throw new Error("No autenticado")
 
     const result = await ctx.runMutation(internal.verifications.applyReview, {
       ...args,
