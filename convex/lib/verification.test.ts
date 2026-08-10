@@ -1,10 +1,16 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 import {
+  isStudentEmail,
   isValidGeneration,
   isVerifiedStudentEmail,
   roleFromIdentity,
 } from "./verification.ts"
+
+test("reconoce correos estudiantiles aunque todavía no estén verificados", () => {
+  assert.equal(isStudentEmail(" ANA@ALUMNOS.UTALCA.CL "), true)
+  assert.equal(isStudentEmail("ana@otroalumnos.utalca.cl"), false)
+})
 
 test("clasifica únicamente correos estudiantiles verificados", () => {
   assert.equal(isVerifiedStudentEmail("ana@alumnos.utalca.cl", true), true)

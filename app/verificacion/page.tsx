@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
+import { isStudentEmail } from "@/convex/lib/verification"
 import { GENERATIONS } from "@/lib/taxonomy"
 import { AppPage, Panel } from "@/components/app-shell"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -39,6 +40,9 @@ export default function VerificationPage() {
   const [generation, setGeneration] = useState(GENERATIONS.at(-1)!)
   const [linkedinUrl, setLinkedinUrl] = useState("")
   const [saving, setSaving] = useState(false)
+  const [verificationCode, setVerificationCode] = useState("")
+  const [verificationSent, setVerificationSent] = useState(false)
+  const [verifyingEmail, setVerifyingEmail] = useState(false)
   const [hydratedRequestId, setHydratedRequestId] = useState<string | null>(
     null
   )
@@ -78,6 +82,73 @@ export default function VerificationPage() {
     }
   }
 
+  const institutionalEmail = user?.emailAddresses.find((email) =>
+    isStudentEmail(email.emailAddress)
+  )
+
+  async function activateInstitutionalEmail() {
+    if (!user || !institutionalEmail) return
+    if (user.primaryEmailAddressId !== institutionalEmail.id) {
+      await user.update({ primaryEmailAddressId: institutionalEmail.id })
+    }
+    await user.reload()
+    window.location.reload()
+  }
+
+  async function refreshInstitutionalAccess() {
+    setVerifyingEmail(true)
+    try {
+      await activateInstitutionalEmail()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No pudimos actualizar tu acceso. Vuelve a intentarlo."
+      )
+      setVerifyingEmail(false)
+    }
+  }
+
+  async function sendVerificationCode() {
+    if (!institutionalEmail) return
+    setVerifyingEmail(true)
+    try {
+      await institutionalEmail.prepareVerification({ strategy: "email_code" })
+      setVerificationSent(true)
+      toast.success(`Enviamos un código a ${institutionalEmail.emailAddress}`)
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No pudimos enviar el código. Vuelve a intentarlo."
+      )
+    } finally {
+      setVerifyingEmail(false)
+    }
+  }
+
+  async function verifyInstitutionalEmail(event: React.FormEvent) {
+    event.preventDefault()
+    if (!institutionalEmail) return
+    setVerifyingEmail(true)
+    try {
+      const verified = await institutionalEmail.attemptVerification({
+        code: verificationCode,
+      })
+      if (verified.verification.status !== "verified") {
+        throw new Error("El código no es válido")
+      }
+      await activateInstitutionalEmail()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No pudimos verificar el correo. Vuelve a intentarlo."
+      )
+      setVerifyingEmail(false)
+    }
+  }
+
   if (!bootstrapped || me === undefined || request === undefined) {
     return (
       <AppPage width="narrow">
@@ -98,9 +169,64 @@ export default function VerificationPage() {
         Una comprobación rápida y estás dentro
       </h1>
       <p className="mt-3 leading-relaxed text-muted-foreground">
-        Si todavía usas tu correo @alumnos.utalca.cl, entras al tiro. Si ya
-        egresaste, cuéntanos quién eres y lo revisamos a mano.
+        Si todavía usas tu correo @alumnos.utalca.cl, tu cuenta se verifica
+        automáticamente. Si ya egresaste, cuéntanos quién eres y lo revisamos a
+        mano.
       </p>
+
+      {institutionalEmail ? (
+        <Panel className="mt-8 p-6 sm:p-7">
+          <h2 className="font-semibold">Verifica tu correo institucional</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {institutionalEmail.emailAddress}
+          </p>
+          {institutionalEmail.verification.status === "verified" ? (
+            <Button
+              type="button"
+              className="mt-5"
+              disabled={verifyingEmail}
+              onClick={() => void refreshInstitutionalAccess()}
+            >
+              {verifyingEmail ? "Actualizando…" : "Actualizar mi verificación"}
+            </Button>
+          ) : verificationSent ? (
+            <form
+              className="mt-5 flex flex-col gap-3 sm:flex-row"
+              onSubmit={verifyInstitutionalEmail}
+            >
+              <Field className="flex-1">
+                <FieldLabel htmlFor="institutional-email-code">
+                  Código de verificación
+                </FieldLabel>
+                <Input
+                  id="institutional-email-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  value={verificationCode}
+                  onChange={(event) => setVerificationCode(event.target.value)}
+                />
+              </Field>
+              <Button
+                type="submit"
+                className="self-end"
+                disabled={verifyingEmail}
+              >
+                {verifyingEmail ? "Verificando…" : "Verificar"}
+              </Button>
+            </form>
+          ) : (
+            <Button
+              type="button"
+              className="mt-5"
+              disabled={verifyingEmail}
+              onClick={() => void sendVerificationCode()}
+            >
+              {verifyingEmail ? "Enviando…" : "Enviar código de verificación"}
+            </Button>
+          )}
+        </Panel>
+      ) : null}
 
       {request?.status === "approved" ? (
         <Alert className="mt-8">

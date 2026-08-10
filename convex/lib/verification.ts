@@ -3,14 +3,15 @@ const GENERATIONS = new Set(
   Array.from({ length: 14 }, (_, index) => String(2013 + index))
 )
 
+export function isStudentEmail(email: string | undefined): boolean {
+  return email?.trim().toLowerCase().endsWith(STUDENT_DOMAIN) === true
+}
+
 export function isVerifiedStudentEmail(
   email: string | undefined,
   emailVerified: boolean | undefined
 ): boolean {
-  return (
-    emailVerified === true &&
-    email?.trim().toLowerCase().endsWith(STUDENT_DOMAIN) === true
-  )
+  return emailVerified === true && isStudentEmail(email)
 }
 
 export function roleFromIdentity(identity: {
