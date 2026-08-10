@@ -215,7 +215,7 @@ export default async function HomePage() {
                 Tu próxima conversación puede empezar aquí.
               </h2>
               <p className="mt-3 text-background/70">
-                Entra a la red y descubre con quién vale la pena hablar.
+                Entra a la red y descubre personas y oportunidades que te pueden ayudar en tu siguiente paso
               </p>
             </div>
             <Link

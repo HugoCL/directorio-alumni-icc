@@ -167,10 +167,13 @@ export function AudienceFeatures({
         onValueChange={(value) =>
           setAudience(value === "alumni" ? "alumni" : "student")
         }
-        className="gap-10 sm:gap-12"
+        className="min-w-0 gap-10 sm:gap-12"
       >
-        <div className="flex justify-center">
-          <TabsList aria-label="Elige tu relación con la carrera">
+        <div className="flex w-full min-w-0 justify-center">
+          <TabsList
+            aria-label="Elige tu relación con la carrera"
+            className="w-full max-w-full sm:w-fit sm:max-w-none"
+          >
             <TabsTrigger value="student">Soy estudiante</TabsTrigger>
             <TabsTrigger value="alumni">Soy alumni</TabsTrigger>
           </TabsList>
