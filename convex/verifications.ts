@@ -1,12 +1,17 @@
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
 import { action, internalMutation, mutation, query } from "./_generated/server"
-import { getIdentity, normalizeEmail, requireAdmin } from "./lib/auth"
+import {
+  getCurrentUserOrNull,
+  getIdentity,
+  normalizeEmail,
+  requireAdmin,
+} from "./lib/auth"
 import {
   verificationRequestValidator,
   verificationStatusValidator,
 } from "./lib/validators"
-import { isValidGeneration } from "./lib/verification"
+import { isStudentEmail, isValidGeneration } from "./lib/verification"
 
 function normalizeLinkedIn(value: string): string {
   try {
@@ -57,14 +62,21 @@ export const submit = mutation({
   returns: v.id("verificationRequests"),
   handler: async (ctx, args) => {
     const identity = await getIdentity(ctx)
-    const email = identity.email ? normalizeEmail(identity.email) : null
-    if (!email || identity.emailVerified !== true) {
+    const existingUser = await getCurrentUserOrNull(ctx)
+    const hasVerifiedStudentAccount =
+      existingUser?.role === "student" && isStudentEmail(existingUser.email)
+    const email =
+      hasVerifiedStudentAccount
+        ? existingUser.email
+        : identity.email
+          ? normalizeEmail(identity.email)
+          : null
+    if (
+      !email ||
+      (!hasVerifiedStudentAccount && identity.emailVerified !== true)
+    ) {
       throw new Error("Verifica tu correo en Clerk antes de continuar")
     }
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", identity.subject))
-      .unique()
     if (existingUser?.role === "alumni" || existingUser?.role === "admin") {
       throw new Error("Tu cuenta ya está verificada")
     }
