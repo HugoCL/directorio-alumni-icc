@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useMemo, useState, useTransition } from "react"
+import { useEffect, useId, useMemo, useState, useTransition } from "react"
 import Link from "next/link"
-import { usePaginatedQuery, useQuery } from "convex/react"
+import { useAction, usePaginatedQuery, useQuery } from "convex/react"
+import { toast } from "sonner"
 import {
   ArrowRightIcon,
   ExternalLinkIcon,
@@ -19,6 +20,16 @@ import { SiteHeader } from "@/components/site-header"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import {
   Empty,
   EmptyDescription,
@@ -41,6 +52,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Textarea } from "@/components/ui/textarea"
 
 const areaItems = [
   { label: "Todas las áreas", value: "all" },
@@ -52,7 +64,80 @@ const generationItems = [
   ...GENERATIONS.map((value) => ({ label: `Generación ${value}`, value })),
 ]
 
-type Profile = Doc<"profiles">
+type Profile = Omit<Doc<"profiles">, "contactEmail"> & {
+  contactEmail?: string
+}
+
+function PrivateMessageDialog({ profile }: { profile: Profile }) {
+  const send = useAction(api.contacts.send)
+  const messageId = useId()
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState("")
+  const [sending, setSending] = useState(false)
+
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    setSending(true)
+    try {
+      await send({ profileId: profile._id, message })
+      setMessage("")
+      setOpen(false)
+      toast.success(`Mensaje enviado a ${profile.fullName}`)
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "No se pudo enviar el mensaje"
+      )
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={<Button variant="outline" className="justify-start" />}
+      >
+        <MailIcon data-icon="inline-start" />
+        Enviar mensaje privado
+      </DialogTrigger>
+      <DialogContent>
+        <form onSubmit={onSubmit} className="grid gap-5">
+          <DialogHeader>
+            <DialogTitle>Escribir a {profile.fullName}</DialogTitle>
+            <DialogDescription>
+              Le enviaremos tu nombre, correo institucional y mensaje. Su correo
+              permanecerá privado.
+            </DialogDescription>
+          </DialogHeader>
+          <label className="grid gap-2 font-medium" htmlFor={messageId}>
+            Mensaje
+            <Textarea
+              id={messageId}
+              required
+              minLength={10}
+              maxLength={1200}
+              rows={6}
+              value={message}
+              placeholder="Cuéntale brevemente por qué te gustaría conversar."
+              onChange={(event) => setMessage(event.target.value)}
+            />
+            <span className="text-right text-xs font-normal text-muted-foreground">
+              {message.length}/1200
+            </span>
+          </label>
+          <DialogFooter>
+            <DialogClose render={<Button type="button" variant="outline" />}>
+              Cancelar
+            </DialogClose>
+            <Button type="submit" disabled={sending}>
+              {sending ? "Enviando…" : "Enviar mensaje"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 type DirectoryFiltersProps = {
   area: string
@@ -130,7 +215,13 @@ function DirectoryFilters({
   )
 }
 
-function ProfileDetail({ profile }: { profile: Profile }) {
+function ProfileDetail({
+  profile,
+  viewerRole,
+}: {
+  profile: Profile
+  viewerRole: Doc<"users">["role"]
+}) {
   return (
     <div className="flex flex-col gap-7">
       <div className="flex items-start gap-4">
@@ -178,16 +269,24 @@ function ProfileDetail({ profile }: { profile: Profile }) {
       <div>
         <h3 className="font-semibold">¿Quieres conversar?</h3>
         <div className="mt-4 flex flex-col gap-2">
-          <a
-            href={`mailto:${profile.contactEmail}`}
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "min-w-0 justify-start"
-            )}
-          >
-            <MailIcon data-icon="inline-start" />
-            <span className="truncate">{profile.contactEmail}</span>
-          </a>
+          {profile.contactEmail ? (
+            <a
+              href={`mailto:${profile.contactEmail}`}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "min-w-0 justify-start"
+              )}
+            >
+              <MailIcon data-icon="inline-start" />
+              <span className="truncate">{profile.contactEmail}</span>
+            </a>
+          ) : viewerRole === "student" ? (
+            <PrivateMessageDialog profile={profile} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Esta persona recibe mensajes privados solo de estudiantes.
+            </p>
+          )}
           {profile.linkedinUrl ? (
             <a
               href={profile.linkedinUrl}
@@ -472,7 +571,7 @@ export function DirectoryApp() {
             className="hidden border-l border-border pl-9 lg:block"
           >
             {selected ? (
-              <ProfileDetail profile={selected} />
+              <ProfileDetail profile={selected} viewerRole={me.role} />
             ) : (
               <p className="text-sm text-muted-foreground">
                 Elige una persona para conocer su experiencia y cómo
@@ -494,7 +593,9 @@ export function DirectoryApp() {
             </SheetTitle>
           </SheetHeader>
           <div className="px-4 pb-4">
-            {selected ? <ProfileDetail profile={selected} /> : null}
+            {selected ? (
+              <ProfileDetail profile={selected} viewerRole={me.role} />
+            ) : null}
           </div>
         </SheetContent>
       </Sheet>

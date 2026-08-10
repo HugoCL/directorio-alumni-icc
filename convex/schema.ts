@@ -2,6 +2,8 @@ import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import {
   areaValidator,
+  contactDeliveryStatusValidator,
+  contactPreferenceValidator,
   inviteStatusValidator,
   jobKindValidator,
   jobModeValidator,
@@ -65,6 +67,7 @@ export default defineSchema({
     location: v.string(),
     helpWith: v.string(),
     contactEmail: v.string(),
+    contactPreference: v.optional(contactPreferenceValidator),
     linkedinUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
     photoUrl: v.optional(v.string()),
@@ -81,6 +84,16 @@ export default defineSchema({
       searchField: "fullName",
       filterFields: ["published", "area", "generation"],
     }),
+
+  contactMessages: defineTable({
+    senderUserId: v.id("users"),
+    recipientUserId: v.id("users"),
+    recipientProfileId: v.id("profiles"),
+    status: contactDeliveryStatusValidator,
+    providerMessageId: v.optional(v.string()),
+    createdAt: v.number(),
+    sentAt: v.optional(v.number()),
+  }).index("by_sender_and_created", ["senderUserId", "createdAt"]),
 
   verificationRequests: defineTable({
     clerkUserId: v.string(),

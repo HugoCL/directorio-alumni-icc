@@ -241,35 +241,14 @@ export const review = action({
       ...args,
       reviewerClerkUserId: identity.subject,
     })
-    const apiKey = process.env.RESEND_API_KEY
-    const from = process.env.RESEND_FROM
-    const appUrl = process.env.APP_URL?.replace(/\/$/, "")
-    if (!apiKey || !from || !appUrl) {
-      throw new Error("Falta configurar RESEND_API_KEY, RESEND_FROM o APP_URL")
-    }
-
     const approved = result.status === "approved"
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": `${args.requestId}-${args.decision}`,
-      },
-      body: JSON.stringify({
-        from,
-        to: result.email,
-        subject: approved
-          ? "Tu cuenta en Red Alumni ICC fue verificada"
-          : "Resultado de tu solicitud a Red Alumni ICC",
-        text: approved
-          ? `Hola ${result.name},\n\nTu cuenta fue aprobada. Completa tu perfil en ${appUrl}/perfil`
-          : `Hola ${result.name},\n\nTu solicitud fue rechazada. Motivo: ${result.rejectionReason}\n\nPuedes corregirla y reenviarla en ${appUrl}/verificacion`,
-      }),
+    await ctx.runAction(internal.emails.sendVerificationResult, {
+      idempotencyKey: `${args.requestId}-${args.decision}`,
+      email: result.email,
+      name: result.name,
+      approved,
+      rejectionReason: result.rejectionReason,
     })
-    if (!response.ok) {
-      throw new Error(`Resend rechazó el correo (${response.status})`)
-    }
 
     await ctx.runMutation(internal.verifications.markNotified, {
       requestId: args.requestId,

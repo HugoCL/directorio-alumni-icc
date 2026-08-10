@@ -42,6 +42,7 @@ type FormState = {
   location: string
   helpWith: string
   contactEmail: string
+  contactPreference: "visible" | "private"
   linkedinUrl: string
   phone: string
   photoUrl: string
@@ -58,6 +59,7 @@ const emptyForm: FormState = {
   location: "",
   helpWith: "",
   contactEmail: "",
+  contactPreference: "visible",
   linkedinUrl: "",
   phone: "",
   photoUrl: "",
@@ -117,6 +119,7 @@ export function ProfileEditor() {
         location: profile.location,
         helpWith: profile.helpWith,
         contactEmail: profile.contactEmail,
+        contactPreference: profile.contactPreference ?? "visible",
         linkedinUrl: profile.linkedinUrl ?? "",
         phone: profile.phone ?? "",
         photoUrl: profile.photoUrl ?? "",
@@ -215,6 +218,7 @@ export function ProfileEditor() {
         location: form.location,
         helpWith: form.helpWith,
         contactEmail: form.contactEmail,
+        contactPreference: form.contactPreference,
         linkedinUrl: form.linkedinUrl || undefined,
         phone: form.phone || undefined,
         photoUrl,
@@ -399,8 +403,10 @@ export function ProfileEditor() {
                 </dd>
               </div>
               <div className="flex justify-between gap-4 py-3">
-                <dt className="text-muted-foreground">Acceso</dt>
-                <dd className="text-right font-medium">Solo la red</dd>
+                <dt className="text-muted-foreground">Correo</dt>
+                <dd className="text-right font-medium">
+                  {form.contactPreference === "private" ? "Privado" : "Visible"}
+                </dd>
               </div>
             </dl>
           </aside>
@@ -600,7 +606,8 @@ export function ProfileEditor() {
             <FieldSet className="border-t border-border pt-7">
               <FieldLegend>Contacto</FieldLegend>
               <FieldDescription className="mb-4">
-                Tú eliges cómo contactarte. Estos datos solo los verá la red.
+                Tú eliges si la red ve tu correo o si los estudiantes te
+                escriben sin conocerlo.
               </FieldDescription>
               <FieldGroup>
                 <Field data-invalid={!!errors.contactEmail || undefined}>
@@ -617,6 +624,52 @@ export function ProfileEditor() {
                   {errors.contactEmail ? (
                     <FieldError>{errors.contactEmail}</FieldError>
                   ) : null}
+                </Field>
+                <Field>
+                  <FieldLabel>¿Cómo quieres que te contacten?</FieldLabel>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                      {
+                        value: "visible" as const,
+                        title: "Mostrar mi correo",
+                        description:
+                          "Las personas verificadas de la red podrán verlo.",
+                      },
+                      {
+                        value: "private" as const,
+                        title: "Mantenerlo privado",
+                        description:
+                          "Los estudiantes podrán enviarte un mensaje y recibirás su correo para responder.",
+                      },
+                    ].map((option) => (
+                      <label
+                        key={option.value}
+                        className="flex cursor-pointer gap-3 rounded-lg border border-border p-4 has-checked:border-primary has-checked:bg-accent"
+                      >
+                        <input
+                          type="radio"
+                          name="contactPreference"
+                          value={option.value}
+                          checked={form.contactPreference === option.value}
+                          onChange={() =>
+                            setForm((current) => ({
+                              ...current,
+                              contactPreference: option.value,
+                            }))
+                          }
+                          className="mt-1 accent-primary"
+                        />
+                        <span>
+                          <span className="block font-medium">
+                            {option.title}
+                          </span>
+                          <span className="mt-1 block text-sm text-muted-foreground">
+                            {option.description}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="linkedinUrl">LinkedIn</FieldLabel>

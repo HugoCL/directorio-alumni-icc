@@ -3,11 +3,16 @@ import {
   paginationResultValidator,
 } from "convex/server"
 import { v } from "convex/values"
+import type { Doc } from "./_generated/dataModel"
 import { mutation, query } from "./_generated/server"
 import { canFeatureProfile, isOwnedProfilePhotoUrl } from "../lib/profile-photo"
 import { requireAlumni, requireDirectoryAccess } from "./lib/auth"
+import { directoryContactEmail } from "./lib/contact"
+import { normalizeContactEmail } from "./lib/jobs"
 import {
   areaValidator,
+  contactPreferenceValidator,
+  directoryProfileValidator,
   landingProfileValidator,
   profileValidator,
 } from "./lib/validators"
@@ -52,9 +57,6 @@ function validateProfileInput(args: {
   if (!GENERATIONS.has(args.generation)) {
     throw new Error("Generación inválida")
   }
-  if (!args.contactEmail.includes("@")) {
-    throw new Error("Correo de contacto inválido")
-  }
   if (args.helpWith.trim().length < 10) {
     throw new Error("Describe en al menos 10 caracteres en qué puedes ayudar")
   }
@@ -66,6 +68,18 @@ function validateProfileInput(args: {
   }
   if (args.location.trim().length < 2) {
     throw new Error("La ubicación es obligatoria")
+  }
+}
+
+function forDirectory(profile: Doc<"profiles">) {
+  const contactPreference = profile.contactPreference ?? "visible"
+  return {
+    ...profile,
+    contactPreference,
+    contactEmail: directoryContactEmail(
+      profile.contactEmail,
+      profile.contactPreference
+    ),
   }
 }
 
@@ -91,6 +105,7 @@ export const upsertMine = mutation({
     location: v.string(),
     helpWith: v.string(),
     contactEmail: v.string(),
+    contactPreference: contactPreferenceValidator,
     linkedinUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
     photoUrl: v.optional(v.string()),
@@ -101,6 +116,8 @@ export const upsertMine = mutation({
   handler: async (ctx, args) => {
     const user = await requireAlumni(ctx)
     validateProfileInput(args)
+    const contactEmail = normalizeContactEmail(args.contactEmail)
+    if (!contactEmail) throw new Error("El correo de contacto es obligatorio")
     const linkedinUrl = normalizeLinkedIn(args.linkedinUrl)
     const phone = args.phone?.trim() || undefined
     const photoUrl = args.photoUrl?.trim() || undefined
@@ -128,7 +145,8 @@ export const upsertMine = mutation({
       company: args.company.trim(),
       location: args.location.trim(),
       helpWith: args.helpWith.trim(),
-      contactEmail: args.contactEmail.trim().toLowerCase(),
+      contactEmail,
+      contactPreference: args.contactPreference,
       linkedinUrl,
       phone,
       photoUrl,
@@ -189,11 +207,12 @@ export const listPublished = query({
     area: v.optional(areaValidator),
     generation: v.optional(v.string()),
   },
-  returns: paginationResultValidator(profileValidator),
+  returns: paginationResultValidator(directoryProfileValidator),
   handler: async (ctx, args) => {
     await requireDirectoryAccess(ctx)
 
     const search = args.search?.trim()
+    let result
 
     if (search) {
       let q = ctx.db
@@ -204,46 +223,44 @@ export const listPublished = query({
           if (args.generation) s = s.eq("generation", args.generation)
           return s
         })
-      return await q.paginate(args.paginationOpts)
-    }
-
-    if (args.area) {
-      return await ctx.db
+      result = await q.paginate(args.paginationOpts)
+    } else if (args.area) {
+      result = await ctx.db
         .query("profiles")
         .withIndex("by_published_and_area", (q) =>
           q.eq("published", true).eq("area", args.area!)
         )
         .order("desc")
         .paginate(args.paginationOpts)
-    }
-
-    if (args.generation) {
-      return await ctx.db
+    } else if (args.generation) {
+      result = await ctx.db
         .query("profiles")
         .withIndex("by_published_and_generation", (q) =>
           q.eq("published", true).eq("generation", args.generation!)
         )
         .order("desc")
         .paginate(args.paginationOpts)
+    } else {
+      result = await ctx.db
+        .query("profiles")
+        .withIndex("by_published", (q) => q.eq("published", true))
+        .order("desc")
+        .paginate(args.paginationOpts)
     }
 
-    return await ctx.db
-      .query("profiles")
-      .withIndex("by_published", (q) => q.eq("published", true))
-      .order("desc")
-      .paginate(args.paginationOpts)
+    return { ...result, page: result.page.map(forDirectory) }
   },
 })
 
 export const getPublished = query({
   args: { profileId: v.id("profiles") },
-  returns: v.union(profileValidator, v.null()),
+  returns: v.union(directoryProfileValidator, v.null()),
   handler: async (ctx, args) => {
     await requireDirectoryAccess(ctx)
     const profile = await ctx.db.get(args.profileId)
     if (!profile || !profile.published) {
       return null
     }
-    return profile
+    return forDirectory(profile)
   },
 })

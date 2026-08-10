@@ -43,7 +43,9 @@ function applicationUrl(value: string | undefined): string | undefined {
   }
 }
 
-function contactEmail(value: string | undefined): string | undefined {
+export function normalizeContactEmail(
+  value: string | undefined
+): string | undefined {
   const normalized = value?.trim().toLowerCase()
   if (!normalized) return undefined
   if (
@@ -64,7 +66,7 @@ export function normalizeJobInput(input: JobInput) {
     location: required(input.location, "La ubicación", 2, 120),
     description: required(input.description, "La descripción", 20, 3000),
     applicationUrl: applicationUrl(input.applicationUrl),
-    contactEmail: contactEmail(input.contactEmail),
+    contactEmail: normalizeContactEmail(input.contactEmail),
   }
 
   if (!normalized.applicationUrl && !normalized.contactEmail) {

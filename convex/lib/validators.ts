@@ -21,6 +21,17 @@ export const verificationStatusValidator = v.union(
   v.literal("rejected")
 )
 
+export const contactPreferenceValidator = v.union(
+  v.literal("visible"),
+  v.literal("private")
+)
+
+export const contactDeliveryStatusValidator = v.union(
+  v.literal("pending"),
+  v.literal("sent"),
+  v.literal("failed")
+)
+
 export const inviteStatusValidator = v.union(
   v.literal("pending"),
   v.literal("accepted"),
@@ -72,6 +83,28 @@ export const profileValidator = v.object({
   location: v.string(),
   helpWith: v.string(),
   contactEmail: v.string(),
+  contactPreference: v.optional(contactPreferenceValidator),
+  linkedinUrl: v.optional(v.string()),
+  phone: v.optional(v.string()),
+  photoUrl: v.optional(v.string()),
+  featuredOnLanding: v.optional(v.boolean()),
+  published: v.boolean(),
+  updatedAt: v.number(),
+})
+
+export const directoryProfileValidator = v.object({
+  _id: v.id("profiles"),
+  _creationTime: v.number(),
+  userId: v.id("users"),
+  fullName: v.string(),
+  generation: v.string(),
+  area: areaValidator,
+  title: v.string(),
+  company: v.string(),
+  location: v.string(),
+  helpWith: v.string(),
+  contactEmail: v.optional(v.string()),
+  contactPreference: v.optional(contactPreferenceValidator),
   linkedinUrl: v.optional(v.string()),
   phone: v.optional(v.string()),
   photoUrl: v.optional(v.string()),

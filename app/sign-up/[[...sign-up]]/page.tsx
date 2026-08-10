@@ -37,6 +37,32 @@ export default function SignUpPage() {
           className="flex items-center justify-center bg-white px-4 py-10 sm:px-8 lg:px-12"
         >
           <div className="w-full max-w-md">
+            <aside className="mb-6 rounded-xl border border-brand-teal/25 bg-brand-teal/5 p-4 text-sm leading-relaxed text-brand-ink">
+              <p className="font-semibold">¿Eres estudiante?</p>
+              <p className="mt-1">
+                Crea tu cuenta con tu correo <strong>@alumnos.utalca.cl</strong>{" "}
+                para verificarte automáticamente.
+              </p>
+              <p className="mt-2 text-brand-ink/70">
+                Si ya creaste tu cuenta, agrégalo después desde el menú de
+                usuario: Administrar cuenta → Agregar correo electrónico.
+              </p>
+              <details className="mt-3 border-t border-brand-teal/20 pt-3">
+                <summary className="cursor-pointer font-semibold text-brand-teal">
+                  Ver tutorial
+                </summary>
+                <video
+                  controls
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="mt-3 w-full rounded-lg"
+                >
+                  <source src="/tutorial-verificacion.mp4" type="video/mp4" />
+                  Tu navegador no puede reproducir este video.
+                </video>
+              </details>
+            </aside>
             <SignUp
               routing="path"
               path="/sign-up"

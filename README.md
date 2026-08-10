@@ -62,13 +62,18 @@ de `/perfil`.
 
 ## Configurar correos
 
-Verifica un dominio remitente en Resend y configura las variables en Convex:
+Los correos se envían con el SDK de Resend y plantillas de React Email. Verifica
+un dominio remitente y configura las variables en Convex de producción:
 
 ```bash
-npx convex env set RESEND_API_KEY re_...
-npx convex env set RESEND_FROM "Red Alumni ICC <red@tu-dominio.cl>"
-npx convex env set APP_URL https://tu-aplicacion.cl
+npx convex env set --prod RESEND_API_KEY re_...
+npx convex env set --prod RESEND_FROM "Red Alumni ICC <red@tu-dominio.cl>"
+npx convex env set --prod APP_URL https://directorio-alumni-icc.vercel.app
 ```
+
+No guardes estos valores en archivos versionados. Resend notifica decisiones de
+verificación y reenvía mensajes de estudiantes cuando un alumni mantiene su
+correo privado.
 
 ## Flujo de acceso
 
