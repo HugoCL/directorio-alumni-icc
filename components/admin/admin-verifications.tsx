@@ -35,7 +35,7 @@ type Request = Doc<"verificationRequests">
 export function AdminVerifications() {
   const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth()
   const me = useQuery(api.users.me)
-  const syncAdmin = useMutation(api.users.syncAdminRole)
+  const syncAdmin = useAction(api.users.ensureSession)
   const requests = useQuery(
     api.verifications.list,
     me?.role === "admin" ? {} : "skip"

@@ -1,9 +1,9 @@
 import { createClerkClient } from "@clerk/backend"
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
-import { action, internalMutation, mutation, query } from "./_generated/server"
+import { action, internalMutation, query } from "./_generated/server"
 import type { MutationCtx } from "./_generated/server"
-import type { Doc, Id } from "./_generated/dataModel"
+import type { Doc } from "./_generated/dataModel"
 import {
   getCurrentUserOrNull,
   getIdentity,
@@ -19,14 +19,16 @@ import {
 
 async function ensureSessionInternal(
   ctx: MutationCtx,
-  verifiedStudentEmail?: string
+  verifiedEmail?: string,
+  verifiedRole?: "admin" | "alumni" | "student"
 ): Promise<Doc<"users"> | null> {
   const identity = await getIdentity(ctx)
   const clerkRole =
+    verifiedRole ??
     roleFromIdentity(identity as unknown as Record<string, unknown>) ??
-    (verifiedStudentEmail ? "student" : null)
-  const email = verifiedStudentEmail
-    ? normalizeEmail(verifiedStudentEmail)
+    (verifiedEmail ? "student" : null)
+  const email = verifiedEmail
+    ? normalizeEmail(verifiedEmail)
     : identity.email
       ? normalizeEmail(identity.email)
       : null
@@ -77,10 +79,19 @@ export const me = query({
 
 /** Repair Clerk ↔ Convex linking and sync roles from Clerk public metadata. */
 export const ensureSessionFromClerk = internalMutation({
-  args: { verifiedStudentEmail: v.optional(v.string()) },
+  args: {
+    verifiedEmail: v.optional(v.string()),
+    verifiedRole: v.optional(
+      v.union(v.literal("admin"), v.literal("alumni"), v.literal("student"))
+    ),
+  },
   returns: v.union(userValidator, v.null()),
   handler: async (ctx, args) => {
-    return await ensureSessionInternal(ctx, args.verifiedStudentEmail)
+    return await ensureSessionInternal(
+      ctx,
+      args.verifiedEmail,
+      args.verifiedRole
+    )
   },
 })
 
@@ -91,28 +102,20 @@ export const ensureSession = action({
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new Error("No autenticado")
 
-    let verifiedStudentEmail: string | undefined
-    if (!roleFromIdentity(identity as unknown as Record<string, unknown>)) {
-      const secretKey = process.env.CLERK_SECRET_KEY
-      if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
-      const clerkUser = await createClerkClient({ secretKey }).users.getUser(
-        identity.subject
-      )
-      verifiedStudentEmail =
-        getVerifiedStudentEmail(clerkUser.emailAddresses) ?? undefined
-    }
+    const secretKey = process.env.CLERK_SECRET_KEY
+    if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
+    const clerkUser = await createClerkClient({ secretKey }).users.getUser(
+      identity.subject
+    )
+    const verifiedRole =
+      roleFromIdentity({ role: clerkUser.publicMetadata.role }) ?? undefined
+    const verifiedEmail = verifiedRole
+      ? (clerkUser.primaryEmailAddress?.emailAddress ?? undefined)
+      : (getVerifiedStudentEmail(clerkUser.emailAddresses) ?? undefined)
 
     return await ctx.runMutation(internal.users.ensureSessionFromClerk, {
-      verifiedStudentEmail,
+      verifiedEmail,
+      verifiedRole,
     })
-  },
-})
-
-export const syncAdminRole = mutation({
-  args: {},
-  returns: v.union(v.id("users"), v.null()),
-  handler: async (ctx): Promise<Id<"users"> | null> => {
-    const user = await ensureSessionInternal(ctx)
-    return user?._id ?? null
   },
 })
