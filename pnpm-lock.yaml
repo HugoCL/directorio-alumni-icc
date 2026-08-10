@@ -20,6 +20,9 @@ importers:
       '@clerk/ui':
         specifier: ^1.25.4
         version: 1.25.4(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(@types/react@19.2.17)(bs58@6.0.0)(bufferutil@4.1.0)(react-dom@19.2.4(react@19.2.4))(react-native@0.86.0(@babel/core@7.29.7)(@types/react@19.2.17)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(react@19.2.4)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      '@remixicon/react':
+        specifier: ^4.9.0
+        version: 4.9.0(react@19.2.4)
       '@vercel/blob':
         specifier: ^2.6.1
         version: 2.6.1
@@ -34,7 +37,7 @@ importers:
         version: 1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6)
       convex-helpers:
         specifier: ^0.1.120
-        version: 0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@3.25.76)
+        version: 0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@4.4.3)
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.4)
@@ -57,8 +60,8 @@ importers:
         specifier: ^6.18.1
         version: 6.18.1(@react-email/render@2.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       shadcn:
-        specifier: ^4.13.0
-        version: 4.13.0(babel-plugin-macros@3.1.0)(typescript@5.9.3)
+        specifier: ^4.16.2
+        version: 4.16.2(babel-plugin-macros@3.1.0)(typescript@5.9.3)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1141,6 +1144,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@remixicon/react@4.9.0':
+    resolution: {integrity: sha512-5/jLDD4DtKxH2B4QVXTobvV1C2uL8ab9D5yAYNtFt+w80O0Ys1xFOrspqROL3fjrZi+7ElFUWE37hBfaAl6U+Q==}
+    peerDependencies:
+      react: '>=18.2.0'
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -4540,8 +4548,8 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  shadcn@4.13.0:
-    resolution: {integrity: sha512-5fuJ4jI/GcPeA/iTL4cJivCZuYQGXz/N3bIzyd+Gd/FM6xUCy2MxGG+LaDQuw2cjNy9zGPSFPTEmI048UwPTZA==}
+  shadcn@4.16.2:
+    resolution: {integrity: sha512-M1AvZKFWcCzWRDoyApIqJMSLIpY8Ev4uBGuiPLSFmiTbixXhPmzotSTvLzFmBrfoIxG9aIg2dZOETblEaXGUnQ==}
     engines: {node: '>=20.18.1'}
     hasBin: true
 
@@ -4763,9 +4771,6 @@ packages:
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
-
-  tailwind-merge@3.4.0:
-    resolution: {integrity: sha512-uSaO4gnW+b3Y2aWoWfFpX62vn2sR3skfhbjsEnaBI81WD1wBLlHZe5sWf0AqjksNdYTbGBEd0UasQMT3SNV15g==}
 
   tailwind-merge@3.6.0:
     resolution: {integrity: sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w==}
@@ -6102,6 +6107,10 @@ snapshots:
       react-native: 0.86.0(@babel/core@7.29.7)(@types/react@19.2.17)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6)
     optionalDependencies:
       '@types/react': 19.2.17
+
+  '@remixicon/react@4.9.0(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
 
   '@rtsao/scc@1.1.0': {}
 
@@ -7559,14 +7568,14 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  convex-helpers@0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@3.25.76):
+  convex-helpers@0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       convex: 1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6)
     optionalDependencies:
       hono: 4.12.30
       react: 19.2.4
       typescript: 5.9.3
-      zod: 3.25.76
+      zod: 4.4.3
 
   convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6):
     dependencies:
@@ -9966,7 +9975,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@4.13.0(babel-plugin-macros@3.1.0)(typescript@5.9.3):
+  shadcn@4.16.2(babel-plugin-macros@3.1.0)(typescript@5.9.3):
     dependencies:
       '@babel/core': 7.29.7
       '@babel/parser': 7.29.7
@@ -9993,7 +10002,7 @@ snapshots:
       prompts: 2.4.2
       recast: 0.23.12
       stringify-object: 5.0.0
-      tailwind-merge: 3.4.0
+      tailwind-merge: 3.6.0
       ts-morph: 26.0.0
       tsconfig-paths: 4.2.0
       undici: 7.28.0
@@ -10274,8 +10283,6 @@ snapshots:
   tabbable@6.5.0: {}
 
   tagged-tag@1.0.0: {}
-
-  tailwind-merge@3.4.0: {}
 
   tailwind-merge@3.6.0: {}
 

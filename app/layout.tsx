@@ -2,17 +2,23 @@ import { ClerkProvider } from "@clerk/nextjs"
 import { esMX } from "@clerk/localizations"
 import { shadcn } from "@clerk/ui/themes"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Geist, Inter } from "next/font/google"
 import { SkipLink } from "@/components/skip-link"
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider"
 import { SessionBootstrap } from "@/components/providers/session-bootstrap"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 import "./globals.css"
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+})
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
 })
 
 const clerkLocalization = {
@@ -64,20 +70,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={inter.variable}>
-      <body className="icc-theme min-h-svh bg-background text-foreground antialiased">
+    <html lang="es" className={cn(inter.variable, geist.variable)}>
+      <body className="min-h-svh bg-background text-foreground antialiased">
         <SkipLink />
         <ClerkProvider
           localization={clerkLocalization}
           appearance={{
             theme: shadcn,
             variables: {
-              colorPrimary: "#007B70",
-              colorForeground: "#050403",
+              colorPrimary: "#00786D",
+              colorForeground: "#161615",
               colorBackground: "#FFFFFF",
-              colorInput: "#F2F4F3",
-              colorInputForeground: "#050403",
-              borderRadius: "0.625rem",
+              colorInput: "#F5F5F3",
+              colorInputForeground: "#161615",
+              borderRadius: "0.75rem",
               fontFamily: "var(--font-inter)",
             },
           }}

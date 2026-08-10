@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
 import { GENERATIONS } from "@/lib/taxonomy"
-import { SiteHeader } from "@/components/site-header"
+import { AppPage, Panel } from "@/components/app-shell"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -66,12 +66,12 @@ export default function VerificationPage() {
     setSaving(true)
     try {
       await submit({ name, generation, linkedinUrl })
-      toast.success("Recibimos tu solicitud")
+      toast.success("Recibimos tus datos")
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "No pudimos enviar la solicitud. Intenta nuevamente."
+          : "No pudimos enviar tus datos. Vuelve a intentarlo en un momento."
       )
     } finally {
       setSaving(false)
@@ -80,77 +80,62 @@ export default function VerificationPage() {
 
   if (!bootstrapped || me === undefined || request === undefined) {
     return (
-      <div className="min-h-svh">
-        <SiteHeader />
-        <main
-          id="main-content"
-          aria-busy="true"
-          className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-12"
-        >
+      <AppPage width="narrow">
+        <div aria-busy="true">
           <Skeleton className="h-9 w-72 max-w-full" />
           <Skeleton className="mt-4 h-12 w-full" />
           <Skeleton className="mt-8 h-64 w-full" />
-        </main>
-      </div>
+        </div>
+      </AppPage>
     )
   }
 
   if (me) return null
 
   return (
-    <div className="min-h-svh">
-      <SiteHeader />
-      <main
-        id="main-content"
-        className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-12"
-      >
-        <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance">
-          Una última comprobación y estás dentro
-        </h1>
-        <p className="mt-3 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Si aún usas tu correo @alumnos.utalca.cl, el acceso es inmediato. Si
-          egresaste, cuéntanos quién eres y revisaremos tu solicitud.
-        </p>
+    <AppPage width="narrow" className="sm:py-16">
+      <h1 className="text-3xl leading-tight font-semibold text-balance sm:text-4xl">
+        Una comprobación rápida y estás dentro
+      </h1>
+      <p className="mt-3 leading-relaxed text-muted-foreground">
+        Si todavía usas tu correo @alumnos.utalca.cl, entras al tiro. Si ya
+        egresaste, cuéntanos quién eres y lo revisamos a mano.
+      </p>
 
-        {request?.status === "approved" ? (
-          <Alert className="mt-8">
-            <AlertTitle>Cuenta aprobada</AlertTitle>
-            <AlertDescription>
-              Todo listo. Te estamos llevando a tu perfil…
-            </AlertDescription>
-          </Alert>
-        ) : request?.status === "pending" ? (
-          <Alert className="mt-8">
-            <AlertTitle>Solicitud en revisión</AlertTitle>
-            <AlertDescription>
-              Ya tenemos tus datos. Te avisaremos a {request.email} apenas
-              terminemos de revisarlos.
-            </AlertDescription>
-          </Alert>
-        ) : request?.status === "rejected" && !request.notifiedAt ? (
-          <Alert variant="destructive" className="mt-8">
-            <AlertTitle>Solicitud rechazada</AlertTitle>
-            <AlertDescription>
-              {request.rejectionReason}. Estamos enviando el resultado; podrás
-              corregir y reenviar la solicitud después.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <>
-            {request?.status === "rejected" ? (
-              <Alert variant="destructive" className="mt-8">
-                <AlertTitle>Solicitud rechazada</AlertTitle>
-                <AlertDescription>
-                  {request.rejectionReason}. Puedes corregir los datos y
-                  reenviarla.
-                </AlertDescription>
-              </Alert>
-            ) : null}
+      {request?.status === "approved" ? (
+        <Alert className="mt-8">
+          <AlertTitle>Ya estás dentro</AlertTitle>
+          <AlertDescription>Te estamos llevando a tu perfil…</AlertDescription>
+        </Alert>
+      ) : request?.status === "pending" ? (
+        <Alert className="mt-8">
+          <AlertTitle>Estamos revisando tus datos</AlertTitle>
+          <AlertDescription>
+            Ya los tenemos. Te escribimos a {request.email} apenas terminemos.
+          </AlertDescription>
+        </Alert>
+      ) : request?.status === "rejected" && !request.notifiedAt ? (
+        <Alert className="mt-8">
+          <AlertTitle>Necesitamos revisar algo</AlertTitle>
+          <AlertDescription>
+            {request.rejectionReason}. Te enviaremos el detalle y podrás
+            corregirlo y volver a enviarlo.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          {request?.status === "rejected" ? (
+            <Alert className="mt-8">
+              <AlertTitle>Falta corregir algo</AlertTitle>
+              <AlertDescription>
+                {request.rejectionReason}. Ajusta los datos y vuelve a
+                enviarlos.
+              </AlertDescription>
+            </Alert>
+          ) : null}
 
-            <form
-              onSubmit={onSubmit}
-              className="mt-8 border-y border-border py-6 sm:py-8"
-            >
+          <Panel className="mt-8 p-6 sm:p-7">
+            <form onSubmit={onSubmit}>
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="verification-name">
@@ -204,25 +189,21 @@ export default function VerificationPage() {
                     onChange={(event) => setLinkedinUrl(event.target.value)}
                   />
                   <FieldDescription>
-                    Solo lo usaremos para confirmar tu vínculo con ICC.
+                    Solo lo usamos para confirmar tu paso por ICC.
                   </FieldDescription>
                 </Field>
               </FieldGroup>
               <Button
                 type="submit"
-                className="mt-6 h-11 w-full sm:w-auto"
+                className="mt-7 w-full sm:w-auto"
                 disabled={saving}
               >
-                {saving
-                  ? "Enviando…"
-                  : request
-                    ? "Enviar datos corregidos"
-                    : "Enviar solicitud"}
+                {saving ? "Enviando…" : request ? "Reenviar" : "Enviar"}
               </Button>
             </form>
-          </>
-        )}
-      </main>
-    </div>
+          </Panel>
+        </>
+      )}
+    </AppPage>
   )
 }

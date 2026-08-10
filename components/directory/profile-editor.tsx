@@ -7,8 +7,12 @@ import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
 import { AREAS, GENERATIONS, type Area } from "@/lib/taxonomy"
-import { SiteHeader } from "@/components/site-header"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import {
+  AccessNotice,
+  AppPage,
+  PageHeader,
+  Panel,
+} from "@/components/app-shell"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -145,18 +149,18 @@ export function ProfileEditor() {
   function validate(): boolean {
     const next: typeof errors = {}
     if (form.fullName.trim().length < 2)
-      next.fullName = "Nombre demasiado corto"
-    if (!form.title.trim()) next.title = "Cuéntanos cuál es tu cargo o rol"
-    if (!form.company.trim()) next.company = "Indica dónde trabajas hoy"
-    if (!form.location.trim()) next.location = "Indica tu ciudad o país"
+      next.fullName = "Escribe tu nombre completo"
+    if (!form.title.trim()) next.title = "¿Cuál es tu cargo o rol hoy?"
+    if (!form.company.trim()) next.company = "¿Dónde estás trabajando?"
+    if (!form.location.trim()) next.location = "Agrega tu ciudad o país"
     if (form.helpWith.trim().length < 10) {
-      next.helpWith = "Cuéntanos un poco más para que sepan cuándo contactarte"
+      next.helpWith = "Cuéntanos un poco más, con una línea basta"
     }
     if (!form.contactEmail.includes("@")) {
-      next.contactEmail = "Correo inválido"
+      next.contactEmail = "Revisa el correo, parece incompleto"
     }
     if (form.featuredOnLanding && !form.photoUrl && !photoFile) {
-      next.photoUrl = "Agrega una foto para aparecer en la portada"
+      next.photoUrl = "Para salir en la portada necesitas una foto"
     }
     setErrors(next)
     const firstError = Object.keys(next)[0]
@@ -174,7 +178,7 @@ export function ProfileEditor() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) {
-      toast.error("Hay algunos datos por completar")
+      toast.error("Faltan un par de datos")
       return
     }
     setSaving(true)
@@ -235,7 +239,9 @@ export function ProfileEditor() {
           )
         )
       }
-      toast.success(form.published ? "Perfil publicado" : "Perfil guardado")
+      toast.success(
+        form.published ? "Listo, ya estás en el directorio" : "Perfil guardado"
+      )
     } catch (error) {
       if (uploadedPhotoUrl && authToken) {
         void deletePhoto(uploadedPhotoUrl, authToken).catch(() => {})
@@ -288,131 +294,53 @@ export function ProfileEditor() {
 
   if (me === undefined || (canEdit && profile === undefined)) {
     return (
-      <div className="min-h-svh">
-        <SiteHeader />
-        <main
-          id="main-content"
-          className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12"
-        >
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="mt-6 h-96 w-full" />
-        </main>
-      </div>
+      <AppPage>
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="mt-3 h-5 w-80 max-w-full" />
+        <Skeleton className="mt-8 h-96 w-full" />
+      </AppPage>
     )
   }
 
   if (!me) {
     return (
-      <div className="min-h-svh">
-        <SiteHeader />
-        <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
-          <Alert>
-            <AlertTitle>Esta parte de la red es privada</AlertTitle>
-            <AlertDescription>
-              Confirma tu vínculo con ICC antes de crear o editar tu perfil.
-            </AlertDescription>
-            <div className="mt-4">
-              <Link href="/verificacion" className={buttonVariants()}>
-                Verificar mi acceso
-              </Link>
-            </div>
-          </Alert>
-        </main>
-      </div>
+      <AccessNotice
+        title="Te falta un paso para entrar"
+        description="Confirma tu vínculo con ICC y podrás armar tu perfil."
+        action={{ href: "/verificacion", label: "Confirmar mi acceso" }}
+      />
     )
   }
 
   if (me.role === "student") {
     return (
-      <div className="min-h-svh">
-        <SiteHeader />
-        <main id="main-content" className="mx-auto max-w-xl px-4 py-16 sm:px-6">
-          <Alert>
-            <AlertTitle>Tu cuenta no publica un perfil</AlertTitle>
-            <AlertDescription>
-              Puedes explorar el directorio y las oportunidades. Los perfiles
-              personales están disponibles para alumni verificados.
-            </AlertDescription>
-          </Alert>
-        </main>
-      </div>
+      <AccessNotice
+        title="Los perfiles son para alumni"
+        description="Como estudiante puedes explorar el directorio y las oportunidades. Cuando egreses podrás publicar el tuyo."
+        action={{ href: "/directorio", label: "Ir al directorio" }}
+      />
     )
   }
 
   return (
-    <div className="min-h-svh">
-      <SiteHeader />
-      <main
-        id="main-content"
-        className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12"
-      >
-        <div className="flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-              Mi perfil
-            </h1>
-            <p className="mt-3 max-w-xl text-muted-foreground">
-              Cuenta en qué estás hoy y en qué temas te gustaría dar una mano.
-            </p>
-          </div>
+    <AppPage>
+      <PageHeader
+        title="Mi perfil"
+        description="Cuenta en qué estás hoy y en qué te gustaría dar una mano."
+        actions={
           <Link
             href="/directorio"
             className={buttonVariants({ variant: "outline" })}
           >
             Ver directorio
           </Link>
-        </div>
+        }
+      />
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[17rem_minmax(0,44rem)] lg:items-start lg:gap-16">
-          <aside className="border-y border-border py-6 lg:sticky lg:top-24">
-            <p className="text-sm font-semibold text-primary">
-              Así te verá la red
-            </p>
-            <div className="mt-5 flex items-center gap-4">
-              <Avatar className="size-16">
-                {photoPreview || form.photoUrl ? (
-                  <AvatarImage
-                    src={photoPreview ?? form.photoUrl}
-                    alt={`Foto de ${form.fullName || "perfil"}`}
-                  />
-                ) : null}
-                <AvatarFallback>
-                  {initials(form.fullName) || "ICC"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <p className="truncate font-semibold">
-                  {form.fullName || "Tu nombre"}
-                </p>
-                <p className="truncate text-sm text-muted-foreground">
-                  {form.title || "Tu cargo"}
-                </p>
-              </div>
-            </div>
-            <dl className="mt-6 border-t border-border text-sm">
-              <div className="flex justify-between gap-4 border-b border-border py-3">
-                <dt className="text-muted-foreground">Directorio</dt>
-                <dd className="font-medium">
-                  {form.published ? "Visible" : "Oculto"}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4 border-b border-border py-3">
-                <dt className="text-muted-foreground">Portada</dt>
-                <dd className="font-medium">
-                  {form.featuredOnLanding ? "Autorizada" : "No autorizada"}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4 py-3">
-                <dt className="text-muted-foreground">Correo</dt>
-                <dd className="text-right font-medium">
-                  {form.contactPreference === "private" ? "Privado" : "Visible"}
-                </dd>
-              </div>
-            </dl>
-          </aside>
-
-          <form onSubmit={onSubmit} className="flex min-w-0 flex-col gap-10">
-            <FieldSet className="border-t border-border pt-7">
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
+        <form onSubmit={onSubmit} className="flex min-w-0 flex-col gap-10">
+          <section>
+            <FieldSet>
               <FieldLegend>Sobre ti</FieldLegend>
               <FieldGroup>
                 <Field data-invalid={!!errors.fullName || undefined}>
@@ -479,8 +407,10 @@ export function ProfileEditor() {
                 </div>
               </FieldGroup>
             </FieldSet>
+          </section>
 
-            <FieldSet className="border-t border-border pt-7">
+          <section>
+            <FieldSet>
               <FieldLegend>Foto</FieldLegend>
               <FieldGroup>
                 <Field data-invalid={!!errors.photoUrl || undefined}>
@@ -496,12 +426,31 @@ export function ProfileEditor() {
                         {initials(form.fullName) || "ICC"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <FieldLabel htmlFor="photo">Foto de perfil</FieldLabel>
-                      <Input
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => photoInputRef.current?.click()}
+                      >
+                        {photoPreview || form.photoUrl
+                          ? "Cambiar foto"
+                          : "Subir foto"}
+                      </Button>
+                      {photoPreview || form.photoUrl ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={removePhoto}
+                        >
+                          Quitar
+                        </Button>
+                      ) : null}
+                      <input
                         ref={photoInputRef}
                         id="photo"
                         type="file"
+                        aria-label="Foto de perfil"
+                        className="sr-only"
                         accept={acceptedPhotoTypes.join(",")}
                         aria-invalid={!!errors.photoUrl}
                         onChange={onPhotoChange}
@@ -516,22 +465,13 @@ export function ProfileEditor() {
                       URL pública no adivinable.
                     </FieldDescription>
                   )}
-                  {photoPreview || form.photoUrl ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="self-start"
-                      onClick={removePhoto}
-                    >
-                      Quitar foto
-                    </Button>
-                  ) : null}
                 </Field>
               </FieldGroup>
             </FieldSet>
+          </section>
 
-            <FieldSet className="border-t border-border pt-7">
+          <section>
+            <FieldSet>
               <FieldLegend>En qué estás</FieldLegend>
               <FieldGroup>
                 <Field data-invalid={!!errors.title || undefined}>
@@ -602,12 +542,14 @@ export function ProfileEditor() {
                 </Field>
               </FieldGroup>
             </FieldSet>
+          </section>
 
-            <FieldSet className="border-t border-border pt-7">
-              <FieldLegend>Contacto</FieldLegend>
+          <section>
+            <FieldSet>
+              <FieldLegend>Contacto y visibilidad</FieldLegend>
               <FieldDescription className="mb-4">
-                Tú eliges si la red ve tu correo o si los estudiantes te
-                escriben sin conocerlo.
+                Tú decides si la red ve tu correo o si te escriben sin
+                conocerlo.
               </FieldDescription>
               <FieldGroup>
                 <Field data-invalid={!!errors.contactEmail || undefined}>
@@ -747,15 +689,70 @@ export function ProfileEditor() {
                 </Field>
               </FieldGroup>
             </FieldSet>
+          </section>
 
-            <div className="flex flex-wrap gap-3">
-              <Button type="submit" disabled={saving}>
-                {saving ? "Guardando…" : "Guardar perfil"}
-              </Button>
+          <div className="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-border bg-background/85 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
+            <p className="mr-auto hidden text-sm text-muted-foreground sm:block">
+              Los cambios se publican en el directorio al guardar.
+            </p>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={saving}
+              className="w-full sm:w-auto"
+            >
+              {saving ? "Guardando…" : "Guardar cambios"}
+            </Button>
+          </div>
+        </form>
+
+        <aside className="order-first lg:sticky lg:top-24 lg:order-none">
+          <Panel className="p-5">
+            <p className="text-sm font-medium">Así te ve la red</p>
+            <div className="mt-4 flex items-center gap-3.5">
+              <Avatar className="size-14">
+                {photoPreview || form.photoUrl ? (
+                  <AvatarImage
+                    src={photoPreview ?? form.photoUrl}
+                    alt={`Foto de ${form.fullName || "perfil"}`}
+                  />
+                ) : null}
+                <AvatarFallback>
+                  {initials(form.fullName) || "ICC"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="truncate font-medium">
+                  {form.fullName || "Tu nombre"}
+                </p>
+                <p className="truncate text-sm text-muted-foreground">
+                  {form.title || "Tu cargo"}
+                </p>
+              </div>
             </div>
-          </form>
-        </div>
-      </main>
-    </div>
+            <dl className="mt-5 flex flex-col gap-2.5 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Directorio</dt>
+                <dd className="font-medium">
+                  {form.published ? "Visible" : "Oculto"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Portada</dt>
+                <dd className="font-medium">
+                  {form.featuredOnLanding ? "Sí" : "No"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Correo</dt>
+                <dd className="font-medium">
+                  {form.contactPreference === "private" ? "Privado" : "Visible"}
+                </dd>
+              </div>
+            </dl>
+          </Panel>
+        </aside>
+      </div>
+    </AppPage>
   )
 }

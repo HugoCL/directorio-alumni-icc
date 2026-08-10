@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { fetchQuery } from "convex/nextjs"
-import { ArrowRightIcon } from "lucide-react"
+import { RiArrowRightLine } from "@remixicon/react"
 import { AlumniSpotlight } from "@/components/landing/alumni-spotlight"
 import { SiteHeader } from "@/components/site-header"
 import { buttonVariants } from "@/components/ui/button"
@@ -13,77 +13,92 @@ const directoryPreview = [
     initials: "AV",
     area: "Datos e IA",
     generation: "2018",
-    topic: "Carrera en datos",
+    topic: "Cómo entrar al mundo de los datos",
   },
   {
     initials: "MR",
     area: "Producto",
     generation: "2020",
-    topic: "Primer rol de producto",
+    topic: "Pasar de dev a producto",
   },
   {
     initials: "LC",
     area: "Software",
     generation: "2016",
-    topic: "Liderazgo técnico",
+    topic: "Liderar un equipo técnico",
+  },
+  {
+    initials: "PS",
+    area: "Emprendimiento",
+    generation: "2015",
+    topic: "Levantar un proyecto propio",
+  },
+]
+
+const jobPreview = [
+  { role: "Frontend Engineer", org: "Buk", detail: "Santiago · Híbrido" },
+  { role: "Práctica en Datos", org: "Grupo Kaufmann", detail: "Remoto" },
+  {
+    role: "Ingeniero de Plataforma",
+    org: "NotCo",
+    detail: "Santiago · Remoto",
   },
 ]
 
 const steps = [
   {
     title: "Confirma tu vínculo",
-    body: "Con correo institucional entras al instante. Si egresaste, revisamos tu solicitud.",
+    body: "Con tu correo institucional entras al instante. Si ya egresaste, revisamos tu solicitud a mano.",
   },
   {
     title: "Cuéntanos en qué andas",
-    body: "Comparte tu experiencia y los temas en los que te gustaría dar una mano.",
+    body: "Tu cargo, tu generación y los temas en los que te gustaría dar una mano. Nada más.",
   },
   {
     title: "Vuelve a la conversación",
-    body: "Encuentra a la persona indicada, comparte una oportunidad o retoma el contacto.",
+    body: "Encuentra a la persona indicada, comparte una oportunidad o retoma el contacto con tu generación.",
   },
 ]
 
-function NetworkPreview() {
+/** Fallback hero visual when nobody has opted into the landing page yet. */
+function CommunityWall() {
   return (
-    <div className="border-y border-foreground">
-      <div className="flex items-end justify-between gap-4 border-b border-border py-4">
-        <div>
-          <p className="text-sm font-semibold text-primary">Empieza por aquí</p>
-          <h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em]">
-            Lo que puedes hacer en la red
+    <div className="rounded-2xl border border-border bg-surface p-2">
+      <div className="rounded-xl bg-background p-5 sm:p-6">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="font-heading text-lg font-semibold">
+            Quién está en la red
           </h2>
+          <span className="text-sm text-muted-foreground">Acceso privado</span>
         </div>
-        <span className="text-sm text-muted-foreground">Acceso privado</span>
+
+        <ul className="mt-5 space-y-1.5">
+          {directoryPreview.map((profile) => (
+            <li
+              key={profile.initials}
+              className="flex items-center gap-3.5 rounded-lg px-2 py-2.5"
+            >
+              <span
+                aria-hidden="true"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent font-heading text-sm font-semibold text-accent-foreground"
+              >
+                {profile.initials}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{profile.topic}</p>
+                <p className="truncate text-sm text-muted-foreground">
+                  {profile.area} · Generación {profile.generation}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-5 border-t border-border pt-4 text-sm text-muted-foreground">
+          Un ejemplo de lo que verás dentro. Los perfiles reales aparecen cuando
+          inicias sesión.
+        </p>
       </div>
-
-      <Link
-        href="/directorio"
-        className="group grid gap-4 border-b border-border py-6 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 sm:grid-cols-[1fr_auto] sm:items-end"
-      >
-        <div>
-          <p className="text-xl font-semibold">Personas</p>
-          <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Busca por área o generación y encuentra a alguien que ya recorrió
-            ese camino.
-          </p>
-        </div>
-        <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
-      </Link>
-
-      <Link
-        href="/oportunidades"
-        className="group grid gap-4 py-6 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 sm:grid-cols-[1fr_auto] sm:items-end"
-      >
-        <div>
-          <p className="text-xl font-semibold">Oportunidades</p>
-          <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Descubre empleos y prácticas que alguien de la carrera quiso
-            compartir contigo.
-          </p>
-        </div>
-        <ArrowRightIcon className="text-primary transition-transform group-hover:translate-x-1" />
-      </Link>
     </div>
   )
 }
@@ -95,118 +110,136 @@ export default async function HomePage() {
   ).catch(() => [])
 
   return (
-    <div className="min-h-svh">
-      <SiteHeader variant="landing" />
+    <div className="flex min-h-svh flex-col">
+      <SiteHeader />
 
-      <main id="main-content">
-        <section className="border-b border-border">
-          <div className="mx-auto grid min-h-[calc(88svh-4.5rem)] max-w-7xl items-center gap-14 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,0.92fr)_minmax(26rem,0.78fr)] lg:gap-20">
-            <div className="max-w-2xl">
-              <h1 className="text-[clamp(3rem,7vw,5.8rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance">
-                La carrera nos conectó.
-                <br />
-                La red nos mantiene cerca.
-              </h1>
-              <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-                Encuentra a quien ya recorrió ese camino, comparte una
-                oportunidad o vuelve a conversar con tu generación.
-              </p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Link
-                  href="/directorio"
-                  className={cn(buttonVariants({ size: "lg" }), "min-w-40")}
-                >
-                  Explorar la red
-                  <ArrowRightIcon data-icon="inline-end" />
-                </Link>
-                <Link
-                  href="/oportunidades"
-                  className={buttonVariants({ variant: "outline", size: "lg" })}
-                >
-                  Ver oportunidades
-                </Link>
-              </div>
+      <main id="main-content" className="flex-1">
+        <section className="mx-auto grid w-full max-w-[96rem] items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(24rem,0.85fr)] lg:gap-20 lg:py-28">
+          <div className="max-w-2xl">
+            <h1
+              style={{ "--rise-index": 0 } as React.CSSProperties}
+              className="rise text-[clamp(2.75rem,6vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-balance"
+            >
+              Bienvenid@ al espacio
+              <br />
+              de la comunidad ICC
+            </h1>
+            <p
+              style={{ "--rise-index": 1 } as React.CSSProperties}
+              className="rise mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground"
+            >
+              Encuentra a quien ya recorrió el camino que estás empezando,
+              comparte una oportunidad o vuelve a conversar con tu generación.
+            </p>
+            <div
+              style={{ "--rise-index": 2 } as React.CSSProperties}
+              className="rise mt-9 flex flex-wrap items-center gap-3"
+            >
+              <Link
+                href="/directorio"
+                className={cn(buttonVariants({ size: "lg" }), "px-6")}
+              >
+                Explorar la red
+                <RiArrowRightLine data-icon="inline-end" />
+              </Link>
+              <Link
+                href="/oportunidades"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "px-6"
+                )}
+              >
+                Ver oportunidades
+              </Link>
             </div>
+          </div>
 
-            <div className="min-w-0">
-              {featuredAlumni.length >= 2 ? (
-                <AlumniSpotlight profiles={featuredAlumni} />
-              ) : (
-                <NetworkPreview />
-              )}
-            </div>
+          <div
+            style={{ "--rise-index": 3 } as React.CSSProperties}
+            className="rise min-w-0"
+          >
+            {featuredAlumni.length >= 2 ? (
+              <AlumniSpotlight profiles={featuredAlumni} />
+            ) : (
+              <CommunityWall />
+            )}
           </div>
         </section>
 
-        <section id="para-la-red" className="bg-foreground text-background">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-            <h2 className="max-w-5xl text-4xl leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-6xl">
-              Lo que sabemos vale más cuando circula.
+        <section className="bg-foreground text-background">
+          <div className="mx-auto grid max-w-[96rem] gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-end lg:gap-20">
+            <h2 className="text-3xl leading-[1.08] font-semibold tracking-[-0.03em] text-balance sm:text-[2.75rem]">
+              Lo que sabemos vale más cuando lo compartimos
             </h2>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
+            <p className="text-lg leading-relaxed text-background/70">
               Este es el punto de encuentro entre quienes están comenzando,
-              quienes llevan años de experiencia y quienes quieren aportar.
+              quienes llevan años de experiencia y quienes tienen ganas de
+              aportar. Sin currículums ni formalidades: personas de ICC
+              respondiendo preguntas de personas de ICC.
             </p>
           </div>
         </section>
 
-        <section className="border-b border-border">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <article className="grid gap-10 border-b border-border py-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20 lg:py-20">
+        <section className="mx-auto max-w-[96rem] px-5 py-14 sm:px-8 sm:py-16">
+          <div className="flex flex-col gap-10 sm:gap-12">
+            <div className="grid items-center gap-6 md:grid-cols-2 md:gap-10 lg:gap-14">
               <div className="max-w-md">
-                <p className="text-sm font-semibold text-primary">Directorio</p>
-                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                <h2 className="text-3xl font-semibold text-balance sm:text-[2.125rem]">
                   Encuentra a la persona indicada para esa pregunta.
-                </h3>
-                <p className="mt-5 leading-relaxed text-muted-foreground">
+                </h2>
+                <p className="mt-3 leading-relaxed text-muted-foreground">
                   Busca por área y generación. Cada persona cuenta en qué puede
-                  ayudarte y decide cómo prefiere que la contacten.
+                  ayudarte y elige cómo prefiere que la contacten.
                 </p>
                 <Link
                   href="/directorio"
                   className={cn(
                     buttonVariants({ variant: "link" }),
-                    "mt-5 px-0"
+                    "mt-3 px-0"
                   )}
                 >
                   Explorar personas
-                  <ArrowRightIcon data-icon="inline-end" />
+                  <RiArrowRightLine data-icon="inline-end" />
                 </Link>
               </div>
 
-              <div className="border-y border-border">
-                {directoryPreview.map((profile) => (
-                  <div
-                    key={profile.topic}
-                    className="grid gap-4 border-b border-border py-5 last:border-b-0 sm:grid-cols-[1fr_0.8fr_auto] sm:items-center"
+              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+                {directoryPreview.slice(0, 3).map((profile) => (
+                  <li
+                    key={profile.initials}
+                    className="flex items-center gap-4 px-5 py-3.5"
                   >
-                    <div className="flex min-w-0 items-center gap-4">
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
-                        {profile.initials}
-                      </span>
-                      <div>
-                        <p className="font-semibold">{profile.area}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Generación {profile.generation}
-                        </p>
-                      </div>
+                    <span
+                      aria-hidden="true"
+                      className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent font-heading text-sm font-semibold text-accent-foreground"
+                    >
+                      {profile.initials}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{profile.area}</p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        Generación {profile.generation}
+                      </p>
                     </div>
-                    <p className="text-sm font-medium">{profile.topic}</p>
-                    <ArrowRightIcon className="text-primary" />
-                  </div>
+                    <p className="hidden max-w-48 truncate text-sm text-muted-foreground sm:block">
+                      {profile.topic}
+                    </p>
+                  </li>
                 ))}
-              </div>
-            </article>
+              </ul>
+            </div>
 
-            <article className="grid gap-10 py-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20 lg:py-20">
+            <div
+              aria-hidden="true"
+              className="h-px bg-border/70"
+            />
+
+            <div className="grid items-center gap-6 md:grid-cols-2 md:gap-10 lg:gap-14">
               <div className="max-w-md">
-                <p className="text-sm font-semibold text-signal">
-                  Oportunidades
-                </p>
-                <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  Comparte una oportunidad que valga la pena.
-                </h3>
-                <p className="mt-5 leading-relaxed text-muted-foreground">
+                <h2 className="text-3xl leading-tight font-semibold text-balance sm:text-[2.125rem]">
+                  Comparte y postula a oportunidades de la red
+                </h2>
+                <p className="mt-3 leading-relaxed text-pretty text-muted-foreground">
                   Publica empleos y prácticas que recomendarías de verdad. La
                   red verá la información y sabrá exactamente cómo postular.
                 </p>
@@ -214,121 +247,126 @@ export default async function HomePage() {
                   href="/oportunidades"
                   className={cn(
                     buttonVariants({ variant: "link" }),
-                    "mt-5 px-0"
+                    "mt-3 px-0"
                   )}
                 >
                   Ver oportunidades
-                  <ArrowRightIcon data-icon="inline-end" />
+                  <RiArrowRightLine data-icon="inline-end" />
                 </Link>
               </div>
 
-              <div className="border-y border-border">
-                {[
-                  ["Empleos", "Cargos compartidos por la red"],
-                  ["Prácticas", "Primeras experiencias profesionales"],
-                  ["Postulación directa", "Enlace o contacto en cada aviso"],
-                ].map(([title, description]) => (
-                  <div
-                    key={title}
-                    className="grid gap-2 border-b border-border py-6 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:items-baseline"
+              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+                {jobPreview.map((job) => (
+                  <li
+                    key={job.role}
+                    className="flex items-center justify-between gap-4 px-5 py-3.5"
                   >
-                    <p className="font-semibold">{title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {description}
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{job.role}</p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {job.org}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-sm text-muted-foreground">
+                      {job.detail}
                     </p>
-                  </div>
+                  </li>
                 ))}
-              </div>
-            </article>
+              </ul>
+            </div>
           </div>
         </section>
 
-        <section>
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-              <h2 className="max-w-xl text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-                Entrar es simple
-              </h2>
-              <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-                La verificación toma unos minutos y mantiene este espacio entre
-                personas de la carrera.
-              </p>
-            </div>
+        <section className="border-t border-border bg-surface">
+          <div className="mx-auto max-w-[96rem] px-5 py-20 sm:px-8 sm:py-24">
+            <h2 className="max-w-lg text-3xl font-semibold sm:text-[2.125rem]">
+              Entrar toma un par de minutos
+            </h2>
 
-            <ol className="mt-12 grid border-y border-border md:grid-cols-3">
+            <ol className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-3">
               {steps.map((step, index) => (
-                <li
-                  key={step.title}
-                  className="border-b border-border py-8 last:border-b-0 md:border-r md:border-b-0 md:px-8 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
-                >
-                  <span
-                    className={cn(
-                      "text-sm font-bold",
-                      index === 0
-                        ? "text-signal"
-                        : index === 1
-                          ? "text-primary"
-                          : "text-foreground"
-                    )}
-                  >
+                <li key={step.title}>
+                  <span className="font-heading text-sm font-semibold text-primary tabular-nums">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="mt-5 text-xl font-semibold">{step.title}</h3>
-                  <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  <h3 className="mt-3 text-xl font-semibold">{step.title}</h3>
+                  <p className="mt-2 leading-relaxed text-muted-foreground">
                     {step.body}
                   </p>
                 </li>
               ))}
             </ol>
           </div>
+        </section>
 
-          <div className="border-t border-border bg-foreground text-background">
-            <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <h2 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  Tu próxima conversación puede empezar aquí.
-                </h2>
-                <p className="mt-3 text-background/70">
-                  Entra a la red y descubre con quién vale la pena hablar.
-                </p>
-              </div>
-              <Link
-                href="/sign-in"
-                className={cn(
-                  buttonVariants({ variant: "secondary", size: "lg" }),
-                  "w-fit"
-                )}
-              >
-                Iniciar sesión
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
+        <section className="bg-foreground text-background">
+          <div className="mx-auto flex max-w-[96rem] flex-col gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:py-20">
+            <div>
+              <h2 className="text-2xl font-semibold sm:text-3xl">
+                Tu próxima conversación puede empezar aquí.
+              </h2>
+              <p className="mt-3 text-background/70">
+                Entra a la red y descubre con quién vale la pena hablar.
+              </p>
             </div>
+            <Link
+              href="/sign-in"
+              className={cn(
+                buttonVariants({ variant: "secondary", size: "lg" }),
+                "w-fit px-6"
+              )}
+            >
+              Iniciar sesión
+              <RiArrowRightLine data-icon="inline-end" />
+            </Link>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-border bg-background py-9">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <p className="text-lg font-semibold">Red Alumni ICC</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Un punto de encuentro para quienes pasaron por ICC.
+      <footer className="border-t border-border">
+        <div className="mx-auto flex max-w-[96rem] flex-col gap-8 px-5 py-10 sm:flex-row sm:items-end sm:justify-between sm:gap-12 sm:px-8">
+          <div className="flex items-center gap-3.5">
+            <Link
+              href="https://icc.utalca.cl"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Sitio de Ingeniería Civil en Computación"
+              className="shrink-0"
+            >
+              <Image
+                src="/icc-logo.png"
+                alt="Ingeniería Civil en Computación"
+                width={139}
+                height={132}
+                className="h-16 w-auto opacity-80 transition-opacity hover:opacity-100"
+              />
+            </Link>
+            <div>
+              <p className="font-heading font-semibold">Comunidad ICC</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Un punto de encuentro para toda la comunidad ICC.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-sm leading-relaxed text-muted-foreground sm:shrink-0 sm:text-right sm:whitespace-nowrap">
+            <p>
+              Creado por{" "}
+              <Link
+                href="https://hugocastro.dev"
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                Hugo Castro
+              </Link>{" "}
+              para la Comunidad ICC de la Universidad de Talca.
+            </p>
+            <p className="mt-1">
+              Esta página no es un sitio oficial ni está afiliada a la
+              Universidad de Talca.
             </p>
           </div>
-          <Link
-            href="https://icc.utalca.cl"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Sitio de Ingeniería Civil en Computación"
-          >
-            <Image
-              src="/icc-logo.png"
-              alt="Ingeniería Civil en Computación"
-              width={139}
-              height={132}
-              className="h-auto w-32"
-            />
-          </Link>
         </div>
       </footer>
     </div>

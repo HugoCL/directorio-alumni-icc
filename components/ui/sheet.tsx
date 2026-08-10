@@ -5,7 +5,7 @@ import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { XIcon } from "lucide-react"
+import { RiCloseLine } from "@remixicon/react"
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -70,8 +70,9 @@ function SheetContent({
               />
             }
           >
-            <XIcon />
-            <span className="sr-only">Cerrar</span>
+            <RiCloseLine
+            />
+            <span className="sr-only">Close</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Popup>
@@ -83,10 +84,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn(
-        "flex flex-col gap-1.5 p-6 has-[>.sr-only:only-child]:p-0",
-        className
-      )}
+      className={cn("flex flex-col gap-1.5 p-6", className)}
       {...props}
     />
   )
