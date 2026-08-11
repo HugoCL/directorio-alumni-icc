@@ -97,6 +97,7 @@ export default function VerificationPage() {
     try {
       await activateInstitutionalEmail()
     } catch (error) {
+      Sentry.captureException(error)
       toast.error(
         error instanceof Error
           ? error.message
@@ -114,6 +115,7 @@ export default function VerificationPage() {
       setVerificationSent(true)
       toast.success(`Enviamos un código a ${institutionalEmail.emailAddress}`)
     } catch (error) {
+      Sentry.captureException(error)
       toast.error(
         error instanceof Error
           ? error.message
@@ -137,6 +139,7 @@ export default function VerificationPage() {
       }
       await activateInstitutionalEmail()
     } catch (error) {
+      Sentry.captureException(error)
       toast.error(
         error instanceof Error
           ? error.message
