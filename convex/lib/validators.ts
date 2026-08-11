@@ -2,6 +2,7 @@ import { v } from "convex/values"
 
 export const areaValidator = v.union(
   v.literal("Software"),
+  v.literal("Ciberseguridad"),
   v.literal("Datos e IA"),
   v.literal("Producto"),
   v.literal("Investigación"),

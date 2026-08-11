@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useAuth } from "@clerk/nextjs"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useAuth, useUser } from "@clerk/nextjs"
 import Link from "next/link"
-import { useMutation, useQuery } from "convex/react"
+import { useAction, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
+import { getVerifiedEmails } from "@/convex/lib/verification"
 import { AREAS, GENERATIONS, type Area } from "@/lib/taxonomy"
 import {
   AccessNotice,
@@ -97,10 +98,15 @@ async function deletePhoto(url: string, token: string) {
 
 export function ProfileEditor() {
   const { getToken, sessionClaims } = useAuth()
+  const { user, isLoaded: isUserLoaded } = useUser()
   const me = useQuery(api.users.me)
   const canEdit = me?.role === "alumni" || me?.role === "admin"
   const profile = useQuery(api.profiles.getMine, canEdit ? {} : "skip")
-  const upsert = useMutation(api.profiles.upsertMine)
+  const upsert = useAction(api.profiles.upsertMineVerified)
+  const verifiedEmails = useMemo(
+    () => getVerifiedEmails(user?.emailAddresses ?? []),
+    [user?.emailAddresses]
+  )
   const [form, setForm] = useState<FormState>(emptyForm)
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormState, string>>
@@ -112,7 +118,17 @@ export function ProfileEditor() {
   const photoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (hydrated || profile === undefined) return
+    if (hydrated || profile === undefined || !isUserLoaded) return
+    const savedContactEmail = profile?.contactEmail.trim().toLowerCase()
+    const primaryEmail =
+      user?.primaryEmailAddress?.verification.status === "verified"
+        ? user.primaryEmailAddress.emailAddress.trim().toLowerCase()
+        : undefined
+    const contactEmail =
+      verifiedEmails.find((email) => email === savedContactEmail) ??
+      primaryEmail ??
+      verifiedEmails[0] ??
+      ""
     if (profile) {
       setForm({
         fullName: profile.fullName,
@@ -122,7 +138,7 @@ export function ProfileEditor() {
         company: profile.company,
         location: profile.location,
         helpWith: profile.helpWith,
-        contactEmail: profile.contactEmail,
+        contactEmail,
         contactPreference: profile.contactPreference ?? "visible",
         linkedinUrl: profile.linkedinUrl ?? "",
         phone: profile.phone ?? "",
@@ -134,11 +150,11 @@ export function ProfileEditor() {
       setForm((prev) => ({
         ...prev,
         fullName: me.name,
-        contactEmail: me.email,
+        contactEmail,
       }))
     }
     setHydrated(true)
-  }, [profile, me, hydrated])
+  }, [profile, me, hydrated, isUserLoaded, user, verifiedEmails])
 
   useEffect(() => {
     return () => {
@@ -156,8 +172,8 @@ export function ProfileEditor() {
     if (form.helpWith.trim().length < 10) {
       next.helpWith = "Cuéntanos un poco más, con una línea basta"
     }
-    if (!form.contactEmail.includes("@")) {
-      next.contactEmail = "Revisa el correo, parece incompleto"
+    if (!verifiedEmails.includes(form.contactEmail)) {
+      next.contactEmail = "Selecciona un correo verificado de tu cuenta"
     }
     if (form.featuredOnLanding && !form.photoUrl && !photoFile) {
       next.photoUrl = "Para salir en la portada necesitas una foto"
@@ -548,24 +564,53 @@ export function ProfileEditor() {
             <FieldSet>
               <FieldLegend>Contacto y visibilidad</FieldLegend>
               <FieldDescription className="mb-4">
-                Tú decides si la red ve tu correo o si te escriben sin
-                conocerlo.
+                Elige dónde recibir mensajes y si quieres mostrar esa dirección
+                en tu perfil.
               </FieldDescription>
               <FieldGroup>
                 <Field data-invalid={!!errors.contactEmail || undefined}>
-                  <FieldLabel htmlFor="contactEmail">Correo</FieldLabel>
-                  <Input
-                    id="contactEmail"
-                    type="email"
+                  <FieldLabel htmlFor="contactEmail">
+                    Correo de contacto
+                  </FieldLabel>
+                  <Select
                     value={form.contactEmail}
-                    aria-invalid={!!errors.contactEmail}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, contactEmail: e.target.value }))
+                    disabled={verifiedEmails.length === 0}
+                    onValueChange={(value) =>
+                      value &&
+                      setForm((current) => ({
+                        ...current,
+                        contactEmail: value,
+                      }))
                     }
-                  />
+                  >
+                    <SelectTrigger
+                      id="contactEmail"
+                      className="w-full"
+                      aria-invalid={!!errors.contactEmail}
+                    >
+                      <SelectValue placeholder="No tienes correos verificados" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {verifiedEmails.map((email) => (
+                          <SelectItem key={email} value={email}>
+                            {email}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   {errors.contactEmail ? (
                     <FieldError>{errors.contactEmail}</FieldError>
-                  ) : null}
+                  ) : (
+                    <FieldDescription>
+                      Recibirás aquí los mensajes enviados desde el directorio.
+                      Si eliges “Mostrar mi correo”, esta misma dirección será
+                      visible en tu perfil. Para agregar otra, abre tu avatar en
+                      la esquina superior derecha y entra a “Administrar
+                      cuenta”.
+                    </FieldDescription>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel>¿Cómo quieres que te contacten?</FieldLabel>

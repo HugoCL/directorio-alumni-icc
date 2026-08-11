@@ -1,10 +1,17 @@
+import { createClerkClient } from "@clerk/backend"
 import {
   paginationOptsValidator,
   paginationResultValidator,
 } from "convex/server"
-import { v } from "convex/values"
-import type { Doc } from "./_generated/dataModel"
-import { mutation, query } from "./_generated/server"
+import { v, type Infer } from "convex/values"
+import { internal } from "./_generated/api"
+import type { Doc, Id } from "./_generated/dataModel"
+import {
+  action,
+  internalMutation,
+  query,
+  type MutationCtx,
+} from "./_generated/server"
 import { canFeatureProfile, isOwnedProfilePhotoUrl } from "../lib/profile-photo"
 import { requireAlumni, requireDirectoryAccess } from "./lib/auth"
 import { directoryContactEmail } from "./lib/contact"
@@ -16,7 +23,26 @@ import {
   landingProfileValidator,
   profileValidator,
 } from "./lib/validators"
-import { isValidGeneration } from "./lib/verification"
+import { getVerifiedEmails, isValidGeneration } from "./lib/verification"
+
+const profileInputArgs = {
+  fullName: v.string(),
+  generation: v.string(),
+  area: areaValidator,
+  title: v.string(),
+  company: v.string(),
+  location: v.string(),
+  helpWith: v.string(),
+  contactEmail: v.string(),
+  contactPreference: contactPreferenceValidator,
+  linkedinUrl: v.optional(v.string()),
+  phone: v.optional(v.string()),
+  photoUrl: v.optional(v.string()),
+  featuredOnLanding: v.optional(v.boolean()),
+  published: v.boolean(),
+}
+const profileInputValidator = v.object(profileInputArgs)
+type ProfileInput = Infer<typeof profileInputValidator>
 
 function normalizeLinkedIn(url: string | undefined): string | undefined {
   if (!url) return undefined
@@ -80,6 +106,64 @@ function forDirectory(profile: Doc<"profiles">) {
   }
 }
 
+async function saveProfile(
+  ctx: MutationCtx,
+  args: ProfileInput
+): Promise<Id<"profiles">> {
+  const user = await requireAlumni(ctx)
+  validateProfileInput(args)
+  const contactEmail = normalizeContactEmail(args.contactEmail)
+  if (!contactEmail) throw new Error("El correo de contacto es obligatorio")
+  const linkedinUrl = normalizeLinkedIn(args.linkedinUrl)
+  const phone = args.phone?.trim() || undefined
+  const photoUrl = args.photoUrl?.trim() || undefined
+  if (photoUrl && !isOwnedProfilePhotoUrl(photoUrl, user.clerkUserId)) {
+    throw new Error("URL de foto inválida")
+  }
+  const featuredOnLanding = canFeatureProfile(
+    args.published,
+    photoUrl,
+    args.featuredOnLanding
+  )
+  const now = Date.now()
+
+  const existing = await ctx.db
+    .query("profiles")
+    .withIndex("by_user", (q) => q.eq("userId", user._id))
+    .unique()
+
+  const payload = {
+    userId: user._id,
+    fullName: args.fullName.trim(),
+    generation: args.generation,
+    area: args.area,
+    title: args.title.trim(),
+    company: args.company.trim(),
+    location: args.location.trim(),
+    helpWith: args.helpWith.trim(),
+    contactEmail,
+    contactPreference: args.contactPreference,
+    linkedinUrl,
+    phone,
+    photoUrl,
+    featuredOnLanding,
+    published: args.published,
+    updatedAt: now,
+  }
+
+  const profileId = existing
+    ? (await ctx.db.patch(existing._id, payload), existing._id)
+    : await ctx.db.insert("profiles", payload)
+
+  await ctx.db.patch(user._id, {
+    profileComplete: true,
+    name: payload.fullName,
+    updatedAt: now,
+  })
+
+  return profileId
+}
+
 export const getMine = query({
   args: {},
   returns: v.union(profileValidator, v.null()),
@@ -92,82 +176,37 @@ export const getMine = query({
   },
 })
 
-export const upsertMine = mutation({
-  args: {
-    fullName: v.string(),
-    generation: v.string(),
-    area: areaValidator,
-    title: v.string(),
-    company: v.string(),
-    location: v.string(),
-    helpWith: v.string(),
-    contactEmail: v.string(),
-    contactPreference: contactPreferenceValidator,
-    linkedinUrl: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    photoUrl: v.optional(v.string()),
-    featuredOnLanding: v.optional(v.boolean()),
-    published: v.boolean(),
-  },
+export const upsertMineVerified = action({
+  args: profileInputArgs,
   returns: v.id("profiles"),
-  handler: async (ctx, args) => {
-    const user = await requireAlumni(ctx)
-    validateProfileInput(args)
-    const contactEmail = normalizeContactEmail(args.contactEmail)
-    if (!contactEmail) throw new Error("El correo de contacto es obligatorio")
-    const linkedinUrl = normalizeLinkedIn(args.linkedinUrl)
-    const phone = args.phone?.trim() || undefined
-    const photoUrl = args.photoUrl?.trim() || undefined
-    if (photoUrl && !isOwnedProfilePhotoUrl(photoUrl, user.clerkUserId)) {
-      throw new Error("URL de foto inválida")
-    }
-    const featuredOnLanding = canFeatureProfile(
-      args.published,
-      photoUrl,
-      args.featuredOnLanding
+  handler: async (ctx, args): Promise<Id<"profiles">> => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error("No autenticado")
+
+    const secretKey = process.env.CLERK_SECRET_KEY
+    if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
+    const clerkUser = await createClerkClient({ secretKey }).users.getUser(
+      identity.subject
     )
-    const now = Date.now()
+    const contactEmail = normalizeContactEmail(args.contactEmail)
+    if (
+      !contactEmail ||
+      !getVerifiedEmails(clerkUser.emailAddresses).includes(contactEmail)
+    ) {
+      throw new Error("Selecciona un correo verificado de tu cuenta")
+    }
 
-    const existing = await ctx.db
-      .query("profiles")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .unique()
-
-    const payload = {
-      userId: user._id,
-      fullName: args.fullName.trim(),
-      generation: args.generation,
-      area: args.area,
-      title: args.title.trim(),
-      company: args.company.trim(),
-      location: args.location.trim(),
-      helpWith: args.helpWith.trim(),
+    return await ctx.runMutation(internal.profiles.upsertMineInternal, {
+      ...args,
       contactEmail,
-      contactPreference: args.contactPreference,
-      linkedinUrl,
-      phone,
-      photoUrl,
-      featuredOnLanding,
-      published: args.published,
-      updatedAt: now,
-    }
-
-    let profileId
-    if (existing) {
-      await ctx.db.patch(existing._id, payload)
-      profileId = existing._id
-    } else {
-      profileId = await ctx.db.insert("profiles", payload)
-    }
-
-    await ctx.db.patch(user._id, {
-      profileComplete: true,
-      name: payload.fullName,
-      updatedAt: now,
     })
-
-    return profileId
   },
+})
+
+export const upsertMineInternal = internalMutation({
+  args: profileInputArgs,
+  returns: v.id("profiles"),
+  handler: saveProfile,
 })
 
 export const listLandingFeatured = query({

@@ -8,8 +8,8 @@ const lastGenerationYear = Math.max(
 const GENERATIONS = new Set(
   Array.from(
     { length: lastGenerationYear - FIRST_GENERATION_YEAR + 1 },
-    (_, index) => String(FIRST_GENERATION_YEAR + index),
-  ),
+    (_, index) => String(FIRST_GENERATION_YEAR + index)
+  )
 )
 
 export function isStudentEmail(email: string | undefined): boolean {
@@ -26,18 +26,36 @@ export function isVerifiedStudentEmail(
 export function getVerifiedStudentEmail(
   emails: Array<{
     emailAddress: string
-    verification?: { status: string } | null
+    verification?: { status: string | null } | null
   }>
 ): string | null {
+  return getVerifiedEmails(emails).find(isStudentEmail) ?? null
+}
+
+export function getVerifiedEmails(
+  emails: Array<{
+    emailAddress: string
+    verification?: { status: string | null } | null
+  }>
+): string[] {
+  return emails.flatMap((email) =>
+    email.verification?.status === "verified"
+      ? [email.emailAddress.trim().toLowerCase()]
+      : []
+  )
+}
+
+export function resolveVerifiedContactEmail(
+  currentEmail: string | undefined,
+  primaryEmail: string | undefined,
+  verifiedEmails: string[]
+): string | null {
+  const current = currentEmail?.trim().toLowerCase()
+  const primary = primaryEmail?.trim().toLowerCase()
   return (
-    emails
-      .find(
-        (email) =>
-          email.verification?.status === "verified" &&
-          isStudentEmail(email.emailAddress)
-      )
-      ?.emailAddress.trim()
-      .toLowerCase() ?? null
+    (current && verifiedEmails.includes(current) ? current : primary) ??
+    verifiedEmails[0] ??
+    null
   )
 }
 

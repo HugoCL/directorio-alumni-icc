@@ -23,6 +23,9 @@ importers:
       '@clerk/ui':
         specifier: ^1.25.4
         version: 1.25.4(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(@types/react@19.2.17)(bs58@6.0.0)(bufferutil@4.1.0)(react-dom@19.2.4(react@19.2.4))(react-native@0.86.0(@babel/core@7.29.7)(@types/react@19.2.17)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(react@19.2.4)(typescript@5.9.3)(utf-8-validate@6.0.6)
+      '@convex-dev/migrations':
+        specifier: ^0.3.6
+        version: 0.3.6(convex-helpers@0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@3.25.76))(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))
       '@remixicon/react':
         specifier: ^4.9.0
         version: 4.9.0(react@19.2.4)
@@ -363,6 +366,12 @@ packages:
     peerDependencies:
       react: ^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0
       react-dom: ^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0
+
+  '@convex-dev/migrations@0.3.6':
+    resolution: {integrity: sha512-cURYG4uy323MDi55QWNF5HAGemS4QspSgJ4uP+gGPAJdBLBbk2KFO7toFlKhacc1NinJQiG6+D/YEFyFyBS1/A==}
+    peerDependencies:
+      convex: ^1.42.0
+      convex-helpers: ^0.1.115
 
   '@dotenvx/dotenvx@1.75.1':
     resolution: {integrity: sha512-/BITOC9dmS/edY2zQwZNicQ059O6RKabtQfyEafV0nGtfYRNHYy1DIPiYVcov40+tob9hfmBnbR963dS+EQ1DQ==}
@@ -6104,6 +6113,11 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
+
+  '@convex-dev/migrations@0.3.6(convex-helpers@0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@3.25.76))(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))':
+    dependencies:
+      convex: 1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6)
+      convex-helpers: 0.1.120(convex@1.42.1(@clerk/react@6.12.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(hono@4.12.30)(react@19.2.4)(typescript@5.9.3)(zod@3.25.76)
 
   '@dotenvx/dotenvx@1.75.1':
     dependencies:
