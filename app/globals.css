@@ -162,6 +162,11 @@
     scrollbar-gutter: stable;
   }
 
+  html:has([data-slot="sheet-content"]) {
+    overflow-y: hidden !important;
+    scrollbar-gutter: auto !important;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
