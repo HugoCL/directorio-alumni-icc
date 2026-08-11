@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
 }
 
 export default withSentryConfig(nextConfig, {
-  org: "mlh-pe-hackathon",
+  org: "hcdotdev",
   project: "directorio-alumni-icc",
   silent: !process.env.CI,
   webpack: {
