@@ -10,8 +10,11 @@ export const AREAS = [
 export type Area = (typeof AREAS)[number];
 
 export const FIRST_GENERATION_YEAR = 1998;
+export const LATEST_KNOWN_GENERATION_YEAR = 2026;
 
-export function buildGenerations(endYear = new Date().getFullYear()) {
+export function buildGenerations(
+  endYear = Math.max(LATEST_KNOWN_GENERATION_YEAR, new Date().getFullYear()),
+) {
   return Array.from(
     { length: endYear - FIRST_GENERATION_YEAR + 1 },
     (_, i) => String(FIRST_GENERATION_YEAR + i),

@@ -46,6 +46,7 @@ test("clasifica únicamente correos estudiantiles verificados", () => {
   assert.equal(isVerifiedStudentEmail("ana@alumnos.utalca.cl", false), false)
   assert.equal(isValidGeneration("1998"), true)
   assert.equal(isValidGeneration("2013"), true)
+  assert.equal(isValidGeneration("2026"), true)
   assert.equal(isValidGeneration(String(new Date().getFullYear())), true)
   assert.equal(isValidGeneration("1997"), false)
 })

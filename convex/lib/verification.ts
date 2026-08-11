@@ -1,8 +1,13 @@
 const STUDENT_DOMAIN = "@alumnos.utalca.cl"
 const FIRST_GENERATION_YEAR = 1998
+const LATEST_KNOWN_GENERATION_YEAR = 2026
+const lastGenerationYear = Math.max(
+  LATEST_KNOWN_GENERATION_YEAR,
+  new Date().getFullYear()
+)
 const GENERATIONS = new Set(
   Array.from(
-    { length: new Date().getFullYear() - FIRST_GENERATION_YEAR + 1 },
+    { length: lastGenerationYear - FIRST_GENERATION_YEAR + 1 },
     (_, index) => String(FIRST_GENERATION_YEAR + index),
   ),
 )
