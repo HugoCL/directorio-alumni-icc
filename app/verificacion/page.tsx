@@ -8,6 +8,7 @@ import { useAction, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
 import { isStudentEmail } from "@/convex/lib/verification"
+import { convexErrorMessage } from "@/lib/convex-error"
 import { GENERATIONS } from "@/lib/taxonomy"
 import { AppPage, Panel } from "@/components/app-shell"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -69,9 +70,10 @@ export default function VerificationPage() {
     } catch (error) {
       Sentry.captureException(error)
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "No pudimos enviar tus datos. Vuelve a intentarlo en un momento."
+        convexErrorMessage(
+          error,
+          "No pudimos enviar tus datos. Vuelve a intentarlo en un momento."
+        )
       )
     } finally {
       setSaving(false)
@@ -99,9 +101,10 @@ export default function VerificationPage() {
     } catch (error) {
       Sentry.captureException(error)
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "No pudimos actualizar tu acceso. Vuelve a intentarlo."
+        convexErrorMessage(
+          error,
+          "No pudimos actualizar tu acceso. Vuelve a intentarlo."
+        )
       )
       setVerifyingEmail(false)
     }
@@ -117,9 +120,10 @@ export default function VerificationPage() {
     } catch (error) {
       Sentry.captureException(error)
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "No pudimos enviar el código. Vuelve a intentarlo."
+        convexErrorMessage(
+          error,
+          "No pudimos enviar el código. Vuelve a intentarlo."
+        )
       )
     } finally {
       setVerifyingEmail(false)
@@ -141,9 +145,10 @@ export default function VerificationPage() {
     } catch (error) {
       Sentry.captureException(error)
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "No pudimos verificar el correo. Vuelve a intentarlo."
+        convexErrorMessage(
+          error,
+          "No pudimos verificar el correo. Vuelve a intentarlo."
+        )
       )
       setVerifyingEmail(false)
     }

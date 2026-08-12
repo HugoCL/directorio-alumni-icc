@@ -1,4 +1,3 @@
-import { createClerkClient } from "@clerk/backend"
 import {
   paginationOptsValidator,
   paginationResultValidator,
@@ -14,6 +13,7 @@ import {
 } from "./_generated/server"
 import { canFeatureProfile, isOwnedProfilePhotoUrl } from "../lib/profile-photo"
 import { requireAlumni, requireDirectoryAccess } from "./lib/auth"
+import { getClerkUserForIdentity } from "./lib/clerk"
 import { directoryContactEmail } from "./lib/contact"
 import { normalizeContactEmail } from "./lib/jobs"
 import {
@@ -183,11 +183,7 @@ export const upsertMineVerified = action({
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new Error("No autenticado")
 
-    const secretKey = process.env.CLERK_SECRET_KEY
-    if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
-    const clerkUser = await createClerkClient({ secretKey }).users.getUser(
-      identity.subject
-    )
+    const clerkUser = await getClerkUserForIdentity(identity)
     const contactEmail = normalizeContactEmail(args.contactEmail)
     if (
       !contactEmail ||

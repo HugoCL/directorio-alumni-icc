@@ -1,4 +1,3 @@
-import { createClerkClient } from "@clerk/backend"
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
 import { action, internalMutation, query } from "./_generated/server"
@@ -11,6 +10,7 @@ import {
   normalizeEmail,
   roleFromIdentity,
 } from "./lib/auth"
+import { getClerkUserForIdentity } from "./lib/clerk"
 import { userValidator } from "./lib/validators"
 import {
   getVerifiedStudentEmail,
@@ -101,11 +101,7 @@ export const ensureSession = action({
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new Error("No autenticado")
 
-    const secretKey = process.env.CLERK_SECRET_KEY
-    if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
-    const clerkUser = await createClerkClient({ secretKey }).users.getUser(
-      identity.subject
-    )
+    const clerkUser = await getClerkUserForIdentity(identity)
     const verifiedRole =
       roleFromIdentity({ role: clerkUser.publicMetadata.role }) ?? undefined
     const verifiedEmail = verifiedRole

@@ -37,13 +37,19 @@ NEXT_PUBLIC_CONVEX_URL=https://….convex.cloud
 }
 ```
 
-3. Configura el issuer en Convex:
+3. Configura el issuer en Convex. En cada deployment, `CLERK_SECRET_KEY`
+   debe ser la de esa misma instancia de Clerk (`sk_test` en dev, `sk_live`
+   en prod):
 
 ```bash
 npx convex env set CLERK_JWT_ISSUER_DOMAIN https://<instancia>.clerk.accounts.dev
 npx convex env set CLERK_PRODUCTION_JWT_ISSUER_DOMAIN https://clerk.<tu-dominio>
+npx convex env set CLERK_SECRET_KEY sk_test_...
+npx convex env set --prod CLERK_SECRET_KEY sk_live_...
 ```
 
+Las actions de Convex (`verifications:submit`, `users:ensureSession`, etc.)
+leen `CLERK_SECRET_KEY` en el backend de Convex, no desde `.env.local`.
 4. Para `/admin`, asigna public metadata al usuario:
 
 ```json

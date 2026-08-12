@@ -1,4 +1,3 @@
-import { createClerkClient } from "@clerk/backend"
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
 import { action, internalMutation, query } from "./_generated/server"
@@ -9,6 +8,7 @@ import {
   normalizeEmail,
   requireAdmin,
 } from "./lib/auth"
+import { getClerkUserForIdentity } from "./lib/clerk"
 import {
   verificationRequestValidator,
   verificationStatusValidator,
@@ -65,11 +65,7 @@ export const submit = action({
   handler: async (ctx, args): Promise<Id<"verificationRequests">> => {
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new Error("No autenticado")
-    const secretKey = process.env.CLERK_SECRET_KEY
-    if (!secretKey) throw new Error("Falta CLERK_SECRET_KEY en el entorno")
-    const clerkUser = await createClerkClient({ secretKey }).users.getUser(
-      identity.subject
-    )
+    const clerkUser = await getClerkUserForIdentity(identity)
     const primaryEmail = clerkUser.primaryEmailAddress
     const verifiedEmail =
       (primaryEmail?.verification?.status === "verified"
